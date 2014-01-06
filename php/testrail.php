@@ -1,7 +1,7 @@
 <?php
 
 /**
- * TestRail API binding for PHP (API v2)
+ * TestRail API binding for PHP (API v2, available since TestRail 3.0)
  *
  * Learn more:
  *
