@@ -1,7 +1,20 @@
+/**
+ * TestRail API binding for .NET (API v2, available since TestRail 3.0)
+ *
+ * Learn more:
+ *
+ * http://docs.gurock.com/testrail-api2/start
+ * http://docs.gurock.com/testrail-api2/accessing
+ *
+ * Copyright Gurock Software GmbH
+ */
+
 using System;
 using System.Net;
 using System.IO;
 using System.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Gurock.TestRail
 {
@@ -21,31 +34,68 @@ namespace Gurock.TestRail
 			this.m_url = base_url + "index.php?/api/v2/";
 		}
 
+		/**
+		 * Get/Set User
+		 *
+		 * Returns/sets the user used for authenticating the API requests.
+		 */
 		public string User
 		{
 			get { return this.m_user; }
 			set { this.m_user = value; }
 		}
 
+		/**
+		 * Get/Set Password
+		 *
+		 * Returns/sets the password used for authenticating the API requests.
+		 */
 		public string Password
 		{
 			get { return this.m_password; }
 			set { this.m_password = value; }
 		}
 
-		public string SendGet(string uri)
+		/**
+		 * Send Get
+		 *
+		 * Issues a GET request (read) against the API and returns the result
+		 * (as JSON object, i.e. JObject instance).
+		 *
+		 * Arguments:
+		 *
+		 * uri                  The API method to call including parameters
+		 *                      (e.g. get_case/1)
+		 */
+		public JObject SendGet(string uri)
 		{
-			return SendRequest("GET", uri);
+			return SendRequest("GET", uri, null);
 		}
 
-		public string SendPost(string uri)
+		/**
+		 * Send POST
+		 *
+		 * Issues a POST request (write) against the API and returns the result
+		 * (as JSON object, i.e. JObject instance).
+		 *
+		 * Arguments:
+		 *
+		 * uri                  The API method to call including parameters
+		 *                      (e.g. add_case/1)
+		 * data                 The data to submit as part of the request (as
+		 *                      serializable object, e.g. a dictionary)
+		 */
+		public JObject SendPost(string uri, object data)
 		{
-			return SendRequest("POST", uri);
+			return SendRequest("POST", uri, data);
 		}
 
-		private string SendRequest(string method, string uri)
+		private JObject SendRequest(string method, string uri, object data)
 		{
 			string url = this.m_url + uri;
+
+			// Create the request object and set the required HTTP method
+			// (GET/POST) and headers (content type and basic auth).
 			HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
 			request.ContentType = "application/json";
 			request.Method = method;
@@ -62,14 +112,90 @@ namespace Gurock.TestRail
 
 			request.Headers.Add("Authorization", "Basic " + auth);
 
-			string text = "";
-			HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-			using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+			if (method == "POST")
 			{
-				text = reader.ReadToEnd();
+				// Add the POST arguments, if any. We just serialize the passed
+				// data object (i.e. a dictionary) and then add it to the request
+				// body.
+				if (data != null)
+				{
+					byte[] block = Encoding.UTF8.GetBytes( 
+						JsonConvert.SerializeObject(data)
+					);
+
+					request.GetRequestStream().Write(block, 0, block.Length);
+				}
 			}
 
-			return text; 
+			// Execute the actual web request (GET or POST) and record any
+			// occurred errors.
+			Exception ex = null;
+			HttpWebResponse response = null;
+			try
+			{
+				response = (HttpWebResponse)request.GetResponse();
+			}
+			catch (WebException e)
+			{
+				if (e.Response == null)
+				{
+					throw;
+				}
+
+				response = (HttpWebResponse)e.Response;
+				ex = e;
+			}
+
+			// Read the response body, if any, and deserialize it from JSON.
+			string text = "";
+			if (response != null)
+			{
+				var reader = new StreamReader(
+					response.GetResponseStream(),
+					Encoding.UTF8
+				);
+
+				using (reader)
+				{
+					text = reader.ReadToEnd();
+				}
+			}
+
+			JObject result;
+			if (text != "")
+			{
+				result = JObject.Parse(text);
+			}
+			else 
+			{
+				result = new JObject();
+			}
+
+			// Check for any occurred errors and add additional details to
+			// the exception message, if any (e.g. the error message returned
+			// by TestRail).
+			if (ex != null)
+			{
+				string error = (string) result["error"];
+				if (error != null)
+				{
+					error = '"' + error + '"';
+				}
+				else
+				{
+					error = "No additional error message received";
+				}
+
+				throw new APIException(
+					String.Format(
+						"TestRail API returned HTTP {0} ({1})",
+						(int)response.StatusCode,
+						error
+					)
+				);
+			}
+
+			return result;
 		}
 	}
 }
