@@ -19,6 +19,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.BufferedReader;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
 public class APIClient
 {
@@ -70,14 +72,19 @@ public class APIClient
 	 * Send Get
 	 *
 	 * Issues a GET request (read) against the API and returns the result
-	 * (as PHP array).
+	 * (as Object, see below).
 	 *
 	 * Arguments:
 	 *
 	 * uri                  The API method to call including parameters
 	 *                      (e.g. get_case/1)
+	 *
+	 * Returns the parsed JSON response as standard object which can
+	 * either be an instance of JSONObject or JSONArray (depending on the
+	 * API method). In most cases, this returns a JSONObject instance which
+	 * is basically the same as java.util.Map.
 	 */
-	public String sendGet(String uri)
+	public Object sendGet(String uri)
 		throws MalformedURLException, IOException, APIException
 	{
 		return this.sendRequest("GET", uri, null);
@@ -87,22 +94,27 @@ public class APIClient
 	 * Send POST
 	 *
 	 * Issues a POST request (write) against the API and returns the result
-	 * (as ...).
+	 * (as Object, see below).
 	 *
 	 * Arguments:
 	 *
 	 * uri                  The API method to call including parameters
 	 *                      (e.g. add_case/1)
 	 * data                 The data to submit as part of the request (as
-	 *                      ..)
+	 *                      serializable object)
+     *
+	 * Returns the parsed JSON response as standard object which can
+	 * either be an instance of JSONObject or JSONArray (depending on the
+	 * API method). In most cases, this returns a JSONObject instance which
+	 * is basically the same as java.util.Map.	 
 	 */
-	public String sendPost(String uri, Object data)
+	public Object sendPost(String uri, Object data)
 		throws MalformedURLException, IOException, APIException
 	{
 		return this.sendRequest("POST", uri, data);
 	}
 	
-	private String sendRequest(String method, String uri, Object data)
+	private Object sendRequest(String method, String uri, Object data)
 		throws MalformedURLException, IOException, APIException
 	{
 		URL url = new URL(this.m_url + uri);
@@ -121,8 +133,9 @@ public class APIClient
 			// data object (i.e. a dictionary) and then add it to the
 			// request body.
 			if (data != null)
-			{
-				byte[] block = ((String) data).getBytes("UTF-8");
+			{				
+				byte[] block = JSONValue.toJSONString(data).
+					getBytes("UTF-8");
 
 				conn.setDoOutput(true);				
 				OutputStream ostream = conn.getOutputStream();			
@@ -131,8 +144,9 @@ public class APIClient
 			}
 		}
 		
-		// Execute the actual web request (GET or POST) and record any
-		// occurred errors (we use the error stream in this case).
+		// Execute the actual web request (if it wasn't already initiated
+		// by getOutputStream above) and record any occurred errors (we use
+		// the error stream in this case).
 		int status = conn.getResponseCode();
 		
 		InputStream istream;
@@ -173,13 +187,14 @@ public class APIClient
 			reader.close();
 		}
 		
+		Object result;
 		if (text != "")
 		{
-			// TODO
+			result = JSONValue.parse(text);
 		}
 		else 
 		{
-		
+			result = new JSONObject();
 		}
 		
 		// Check for any occurred errors and add additional details to
@@ -187,10 +202,23 @@ public class APIClient
 		// by TestRail).
 		if (status != 200)
 		{
-			// TODO
+			String error = "No additional error message received";
+			if (result != null && result instanceof JSONObject)
+			{
+				JSONObject obj = (JSONObject) result;
+				if (obj.containsKey("error"))
+				{
+					error = (String) obj.get("error");
+				}
+			}
+			
+			throw new APIException(
+				"TestRail API returned HTTP " + status +
+				"(" + error + ")"
+			);
 		}
 		
-		return text;
+		return result;
 	}
 	
 	private static String getAuthorization(String user, String password)
