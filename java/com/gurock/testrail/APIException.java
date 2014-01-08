@@ -18,4 +18,3 @@ public class APIException extends Exception
 		super(message);
 	}
 }
-
