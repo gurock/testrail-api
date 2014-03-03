@@ -60,14 +60,14 @@ namespace Gurock.TestRail
 		 * Send Get
 		 *
 		 * Issues a GET request (read) against the API and returns the result
-		 * (as JSON object, i.e. JObject instance).
+		 * (as JSON object, i.e. JObject or JArray instance).
 		 *
 		 * Arguments:
 		 *
 		 * uri                  The API method to call including parameters
 		 *                      (e.g. get_case/1)
 		 */
-		public JObject SendGet(string uri)
+		public object SendGet(string uri)
 		{
 			return SendRequest("GET", uri, null);
 		}
@@ -76,7 +76,7 @@ namespace Gurock.TestRail
 		 * Send POST
 		 *
 		 * Issues a POST request (write) against the API and returns the result
-		 * (as JSON object, i.e. JObject instance).
+		 * (as JSON object, i.e. JObject or JArray instance).
 		 *
 		 * Arguments:
 		 *
@@ -85,12 +85,12 @@ namespace Gurock.TestRail
 		 * data                 The data to submit as part of the request (as
 		 *                      serializable object, e.g. a dictionary)
 		 */
-		public JObject SendPost(string uri, object data)
+		public object SendPost(string uri, object data)
 		{
 			return SendRequest("POST", uri, data);
 		}
 
-		private JObject SendRequest(string method, string uri, object data)
+		private object SendRequest(string method, string uri, object data)
 		{
 			string url = this.m_url + uri;
 
@@ -161,10 +161,17 @@ namespace Gurock.TestRail
 				}
 			}
 
-			JObject result;
+			JContainer result;
 			if (text != "")
 			{
-				result = JObject.Parse(text);
+				if (text.StartsWith("["))
+				{
+					result = JArray.Parse(text);
+				}
+				else 
+				{
+					result = JObject.Parse(text);
+				}
 			}
 			else 
 			{
