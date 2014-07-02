@@ -31,7 +31,7 @@ public class APIClient
 
 	public APIClient(String base_url)
 	{
-		if (base_url.endsWith("/"))
+		if (!base_url.endsWith("/"))
 		{
 			base_url += "/";
 		}
