@@ -7,6 +7,6 @@ You can learn more about TestRail's API here:
 http://docs.gurock.com/testrail-api2/start
 
 -- 
-Copyright Gurock Software GmbH. All rights reserved.
+Copyright Gurock Software GmbH. See license.md for details.
 
 http://www.gurock.com/
