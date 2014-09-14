@@ -1,5 +1,6 @@
 #
-# TestRail API binding for Python (API v2, available since TestRail 3.0)
+# TestRail API binding for Python 2.x (API v2, available since 
+# TestRail 3.0)
 #
 # Learn more:
 #
