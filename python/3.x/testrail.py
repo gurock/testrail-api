@@ -57,7 +57,7 @@ class APIClient:
 		if (method == 'POST'):
 			request.data = bytes(json.dumps(data), 'utf-8')
 		auth = str(
-			base64.encodestring(
+			base64.b64encode(
 				bytes('%s:%s' % (self.user, self.password), 'utf-8')
 			),
 			'ascii'
