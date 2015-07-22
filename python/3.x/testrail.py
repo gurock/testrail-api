@@ -15,6 +15,7 @@ import json
 import urllib.error
 import urllib.request
 
+
 class APIClient:
     def __init__(self, base_url):
         self.user = ''
@@ -88,6 +89,7 @@ class APIClient:
                 (e.code, error))
 
         return result
+
 
 class APIError(Exception):
     pass
