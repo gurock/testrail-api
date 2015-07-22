@@ -79,7 +79,7 @@ class APIClient:
             else:
                 error = 'No additional error message received'
             raise APIError('TestRail API returned HTTP %s (%s)' %
-                (e.code, error))
+                           (e.code, error))
 
         return result
 
