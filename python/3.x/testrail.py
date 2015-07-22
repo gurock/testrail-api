@@ -80,7 +80,7 @@ class APIClient:
         else:
             result = {}
 
-        if e != None:
+        if e is not None:
             if result and 'error' in result:
                 error = '"' + result['error'] + '"'
             else:
