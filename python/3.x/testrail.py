@@ -1,5 +1,5 @@
 #
-# TestRail API binding for Python 3.x (API v2, available since 
+# TestRail API binding for Python 3.x (API v2, available since
 # TestRail 3.0)
 #
 # Learn more:
@@ -82,7 +82,7 @@ class APIClient:
                 error = '"' + result['error'] + '"'
             else:
                 error = 'No additional error message received'
-            raise APIError('TestRail API returned HTTP %s (%s)' % 
+            raise APIError('TestRail API returned HTTP %s (%s)' %
                 (e.code, error))
 
         return result
