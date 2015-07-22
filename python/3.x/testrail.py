@@ -10,8 +10,10 @@
 # Copyright Gurock Software GmbH. See license.md for details.
 #
 
-import urllib.request, urllib.error
-import json, base64
+import base64
+import json
+import urllib.error
+import urllib.request
 
 class APIClient:
     def __init__(self, base_url):
