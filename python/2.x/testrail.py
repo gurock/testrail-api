@@ -1,14 +1,14 @@
-#
-# TestRail API binding for Python 2.x (API v2, available since
-# TestRail 3.0)
-#
-# Learn more:
-#
-# http://docs.gurock.com/testrail-api2/start
-# http://docs.gurock.com/testrail-api2/accessing
-#
-# Copyright Gurock Software GmbH. See license.md for details.
-#
+"""TestRail API binding for Python 2.x.
+
+(API v2, available since TestRail 3.0)
+
+Learn more:
+
+http://docs.gurock.com/testrail-api2/start
+http://docs.gurock.com/testrail-api2/accessing
+
+Copyright Gurock Software GmbH. See license.md for details.
+"""
 
 import base64
 import json
@@ -23,34 +23,28 @@ class APIClient:
             base_url += '/'
         self.__url = base_url + 'index.php?/api/v2/'
 
-    #
-    # Send Get
-    #
-    # Issues a GET request (read) against the API and returns the result
-    # (as Python dict).
-    #
-    # Arguments:
-    #
-    # uri                 The API method to call including parameters
-    #                     (e.g. get_case/1)
-    #
     def send_get(self, uri):
+        """Issue a GET request (read) against the API.
+
+        Args:
+            uri: The API method to call, including parameters, e.g. get_case/1.
+
+        Returns:
+            A dict containing the result of the request.
+        """
         return self.__send_request('GET', uri, None)
 
-    #
-    # Send POST
-    #
-    # Issues a POST request (write) against the API and returns the result
-    # (as Python dict).
-    #
-    # Arguments:
-    #
-    # uri                 The API method to call including parameters
-    #                     (e.g. add_case/1)
-    # data                The data to submit as part of the request (as
-    #                     Python dict, strings must be UTF-8 encoded)
-    #
     def send_post(self, uri, data):
+        """Issue a POST request (write) against the API.
+
+        Args:
+            uri: The API method to call, including parameters, e.g. add_case/1.
+            data: The data to submit as part of the request (as a Python dict;
+                strings must be UTF-8 encoded)
+
+        Returns:
+            A dict containing the result of the request.
+        """
         return self.__send_request('POST', uri, data)
 
     def __send_request(self, method, uri, data):
