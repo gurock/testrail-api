@@ -2444,6 +2444,8 @@ definitions:
         type: string
       custom_preconds:
         type: string
+      custom_steps:
+        type: string
 
   # FIXME - dynamically set this from PHP
   CustomResultFields:
@@ -2517,7 +2519,6 @@ definitions:
             type: integer
             format: int32
             description: The ID of the user the test is assigned to
-
 
   CaseBase:
     type: object
@@ -2620,6 +2621,10 @@ definitions:
       id:
         type: integer
         format: int32
+      include_all:
+        type: boolean
+      is_active:
+        type: boolean
       label:
         type: string
       name:
@@ -2630,6 +2635,11 @@ definitions:
         description: Field type [1=String, Integer, Text, URL, Checkbox, Dropdown, User, Date, Milestone, Steps, Multi-select]
         type: integer
         format: int32
+      template_ids:
+        type: array
+        items:
+          type: integer
+          format: int32
 
   FieldConfig:
     type: object
@@ -2640,12 +2650,12 @@ definitions:
           is_global:
             type: boolean
           project_ids:
-            type: string
-            description: Comma-separated list of project IDs
+            type: array
+            items:
+              type: integer
+              format: int32
       id:
-        type: integer
-        format: int32
-        description: The ID of the user who created the test case
+        type: string
       options:
         type: object
         properties:
@@ -2655,6 +2665,9 @@ definitions:
             type: string
           is_required:
             type: string
+          items:
+            type: string
+            description: An array of comma-separated pairs (id, name) separated by newlines
           rows:
             type: integer
             format: int32
