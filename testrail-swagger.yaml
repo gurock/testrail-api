@@ -2455,6 +2455,7 @@ definitions:
         type: string
 
   Case:
+    type: object
     allOf:
       - $ref: '#/definitions/CaseBase'
       - $ref: '#/definitions/CustomCaseFields'
@@ -2494,6 +2495,7 @@ definitions:
             description:	The date/time when the test case was last updated (as UNIX timestamp)
 
   Test:
+    type: object
     allOf:
       - $ref: '#/definitions/CaseBase'
       - $ref: '#/definitions/CustomCaseFields'
@@ -2821,6 +2823,7 @@ definitions:
         description: The amount of tests in the test plan marked as untested
 
   TestplanInfo:
+    type: object
     allOf:
       - $ref: '#/definitions/TestplanBase'
       - $ref: '#/definitions/ResultSummary'
@@ -2831,6 +2834,7 @@ definitions:
                $ref: '#/definitions/TestrunEntryInfo'
 
   Testplan:
+    type: object
     allOf:
       - $ref: '#/definitions/TestplanBase'
       - properties:
@@ -2889,6 +2893,7 @@ definitions:
         description: The address/URL of the test plan in the user interface
 
   TestrunEntry:
+    type: object
     allOf:
       - $ref: '#/definitions/TestrunEntryBase'
       - type: object
@@ -2899,6 +2904,7 @@ definitions:
                $ref: '#/definitions/Project'
 
   TestrunEntryInfo:
+    type: object
     allOf:
       - $ref: '#/definitions/TestrunEntryBase'
       - type: object
@@ -2923,6 +2929,7 @@ definitions:
         description: The ID of the test suite this test run is derived from
 
   TestrunInfo:
+    type: object
     allOf:
       - $ref: '#/definitions/Testrun'
       - $ref: '#/definitions/ResultSummary'
@@ -3029,6 +3036,7 @@ definitions:
         description: The address/URL of the project in the user interface
 
   SectionInfo:
+    type: object
     allOf:
       - $ref: '#/definitions/Section'
       - properties:
@@ -3115,6 +3123,7 @@ definitions:
         description: The address/URL of the test suite in the user interface
 
   Result:
+    type: object
     allOf:
       - $ref: '#/definitions/ResultBase'
       - $ref: '#/definitions/CustomResultFields'
