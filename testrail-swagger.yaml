@@ -2719,6 +2719,18 @@ definitions:
 
   Milestone:
     type: object
+    allOf:
+      - $ref: '#/definitions/MilestoneBase'
+      - properties:
+          milestones:
+            type: array
+            items:
+              $ref: '#/definitions/MilestoneBase'
+            description: The sub milestones that belong to the milestone (if any); only available with get_milestone (available since TestRail 5.3)
+
+
+  MilestoneBase:
+    type: object
     properties:
       completed_on:
         type: integer
@@ -2741,12 +2753,6 @@ definitions:
       is_started:
         type: boolean
         description: True if the milestone is marked as started and false otherwise (available since TestRail 5.3)
-      milestones:
-        type: array
-        items:
-          type: integer
-          format: int32
-        description: The sub milestones that belong to the milestone (if any); only available with get_milestone (available since TestRail 5.3)
       name:
         type: string
         description: The name of the milestone
