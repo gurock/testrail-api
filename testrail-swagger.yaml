@@ -847,7 +847,7 @@ paths:
         200:
           description: A test plan
           schema:
-            $ref: '#/definitions/TestplanInfo'
+            $ref: '#/definitions/TestplanDetailInfo'
         400:
           description: Invalid or unknown test plan
           schema:
@@ -2833,7 +2833,14 @@ definitions:
     allOf:
       - $ref: '#/definitions/TestplanBase'
       - $ref: '#/definitions/ResultSummary'
-      - properties:
+
+  TestplanDetailInfo:
+    type: object
+    allOf:
+      - $ref: '#/definitions/TestplanBase'
+      - $ref: '#/definitions/ResultSummary'
+      - type: object
+        properties:
           entries:
             type: array
             items:
@@ -2871,11 +2878,6 @@ definitions:
       description:
         type: string
         description: The description of the test plan
-      entries:
-        type: array
-        items:
-           $ref: '#/definitions/Testrun'
-        description: An array of 'entries', i.e. group of test runs
       id:
         type: integer
         format: int32
