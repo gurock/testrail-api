@@ -2154,7 +2154,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Result'
+              $ref: '#/definitions/Testresult'
         400:
           description: Invalid or unknown test
           schema:
@@ -2196,7 +2196,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Result'
+              $ref: '#/definitions/Testresult'
         400:
           description: Invalid or unknown test
           schema:
@@ -2232,7 +2232,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Result'
+              $ref: '#/definitions/Testresult'
         400:
           description: Invalid or unknown test
           schema:
@@ -2261,7 +2261,7 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/Result'
+            $ref: '#/definitions/Testresult'
       tags:
         - TestRail
         - Testresults
@@ -2271,7 +2271,7 @@ paths:
         200:
           description: Success, the test result was created and is returned as part of the response
           schema:
-            $ref: '#/definitions/Result'
+            $ref: '#/definitions/Testresult'
         400:
           description: Invalid or unknown test
           schema:
@@ -2313,7 +2313,7 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/Result'
+            $ref: '#/definitions/Testresult'
       tags:
         - TestRail
         - Testresults
@@ -2323,7 +2323,7 @@ paths:
         200:
           description: Success, the test result was created and is returned as part of the response
           schema:
-            $ref: '#/definitions/Result'
+            $ref: '#/definitions/Testresult'
         400:
           description: Invalid or unknown test
           schema:
@@ -2356,7 +2356,7 @@ paths:
               results:
                 type: array
                 items:
-                   $ref: '#/definitions/Result'
+                   $ref: '#/definitions/Testresult'
       tags:
         - TestRail
         - Testresults
@@ -2368,7 +2368,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Result'
+              $ref: '#/definitions/Testresult'
         400:
           description: Invalid or unknown test
           schema:
@@ -2407,7 +2407,7 @@ paths:
               results:
                 type: array
                 items:
-                   $ref: '#/definitions/Result'
+                   $ref: '#/definitions/Testresult'
       tags:
         - TestRail
         - Testresults
@@ -2419,7 +2419,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Result'
+              $ref: '#/definitions/Testresult'
         400:
           description: Invalid or unknown test
           schema:
@@ -3130,7 +3130,7 @@ definitions:
         type: string
         description: The address/URL of the test suite in the user interface
 
-  Result:
+  Testresult:
     type: object
     allOf:
       - $ref: '#/definitions/ResultBase'
