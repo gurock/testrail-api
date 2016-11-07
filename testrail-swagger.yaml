@@ -2721,13 +2721,13 @@ definitions:
     type: object
     allOf:
       - $ref: '#/definitions/MilestoneBase'
-      - properties:
+      - type: object
+        properties:
           milestones:
             type: array
             items:
               $ref: '#/definitions/MilestoneBase'
             description: The sub milestones that belong to the milestone (if any); only available with get_milestone (available since TestRail 5.3)
-
 
   MilestoneBase:
     type: object
@@ -2850,7 +2850,8 @@ definitions:
     type: object
     allOf:
       - $ref: '#/definitions/TestplanBase'
-      - properties:
+      - type: object
+        properties:
           entries:
             type: array
             items:
@@ -3047,7 +3048,8 @@ definitions:
     type: object
     allOf:
       - $ref: '#/definitions/Section'
-      - properties:
+      - type: object
+        properties:
           depth:
             type: integer
             format: int32
