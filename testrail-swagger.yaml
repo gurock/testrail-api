@@ -1243,19 +1243,19 @@ paths:
         - name: created_after
           in: query
           description: Only return test runs created after this date (as UNIX timestamp).
-          required: true
+          required: false
           type: integer
           format: int32
         - name: created_before
           in: query
           description: Only return test runs created before this date (as UNIX timestamp).
-          required: true
+          required: false
           type: integer
           format: int32
         - name: created_by
           in: query
           description: 	A comma-separated list of creators (user IDs) to filter by.
-          required: true
+          required: false
           type: string
         - name: is_completed
           in: query
@@ -1265,24 +1265,24 @@ paths:
         - name: limit
           in: query
           description: Limit the result to :limit test runs.
-          required: true
+          required: false
           type: integer
           format: int32
         - name: offset
           in: query
           description: Use :offset to skip records.
-          required: true
+          required: false
           type: integer
           format: int32
         - name: milestone_id
           in: query
           description: A comma-separated list of milestone IDs to filter by.
-          required: true
+          required: false
           type: string
         - name: suite_id
           in: query
           description: A comma-separated list of test suite IDs to filter by.
-          required: true
+          required: false
           type: string
       tags:
         - TestRail
