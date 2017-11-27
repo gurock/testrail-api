@@ -22,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.UnsupportedEncodingException;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import java.util.Base64;
 
 public class APIClient
 {
@@ -226,7 +227,7 @@ public class APIClient
 	{
 		try 
 		{
-			return getBase64((user + ":" + password).getBytes("UTF-8"));
+			return new String(Base64.getEncoder().encode(user + ":" + password.getBytes()));
 		}
 		catch (UnsupportedEncodingException e)
 		{
