@@ -27,7 +27,7 @@ class APIClient:
     # Send Get
     #
     # Issues a GET request (read) against the API and returns the result
-    # (as Python dict).
+    # (as Python dict) or filepath if successful file download.
     #
     # Arguments:
     #
@@ -89,7 +89,7 @@ class APIClient:
             except:     # response.content not formatted as JSON
                 raise APIError('TestRail API returned HTTP %s (%s)' % (response.status_code, response.content))
         else:
-            if uri[:15] == 'get_attachment/':
+            if uri[:15] == 'get_attachment/':    # File download
                 open(data, 'wb').write(response.content)
                 return (data)
             else:
