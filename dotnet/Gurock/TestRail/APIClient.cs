@@ -1,5 +1,6 @@
 /**
  * TestRail API binding for .NET (API v2, available since TestRail 3.0)
+ * Updated for TestRail 5.7
  *
  * Learn more:
  *
@@ -84,6 +85,8 @@ namespace Gurock.TestRail
 		 *                      (e.g. add_case/1)
 		 * data                 The data to submit as part of the request (as
 		 *                      serializable object, e.g. a dictionary)
+		 *                      If adding an attachment, must be the path
+		 *                      to the file
 		 */
 		public object SendPost(string uri, object data)
 		{
@@ -114,15 +117,54 @@ namespace Gurock.TestRail
 
 			if (method == "POST")
 			{
-				// Add the POST arguments, if any. We just serialize the passed
-				// data object (i.e. a dictionary) and then add it to the request
-				// body.
-				if (data != null)
+				if (uri.StartsWith("add_attachment"))   // add_attachment API requests
 				{
-					byte[] block = Encoding.UTF8.GetBytes( 
+					string boundary = String.Format("{0:N}", Guid.NewGuid());
+					string filePath = (String)data;
+
+					request.ContentType = "multipart/form-data; boundary=" + boundary;
+
+					using (MemoryStream postDataStream = new MemoryStream())
+					using (StreamWriter postDataWriter = new StreamWriter(postDataStream))
+					{
+						postDataWriter.Write("\r\n--" + boundary + "\r\n");
+						postDataWriter.Write("Content-Disposition: form-data; name=\"attachment\";"
+										+ "filename=\"{0}\""
+										+ "\r\nContent-Type: {1}\r\n\r\n",
+										Path.GetFileName(filePath),
+										Path.GetExtension(filePath));
+						postDataWriter.Flush();
+
+						using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+						{
+							byte[] buffer = new byte[1024];
+							int bytesRead;
+							while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
+							{
+								postDataStream.Write(buffer, 0, bytesRead);
+							}
+
+							postDataWriter.Write("\r\n--" + boundary + "--\r\n");
+							postDataWriter.Flush();
+
+
+							request.ContentLength = postDataStream.Length;
+
+							using (Stream requestStream = request.GetRequestStream())
+							{
+								postDataStream.WriteTo(requestStream);
+							}
+						}
+					}
+				}
+				// For non-attachment requests, add the POST arguments, if any. 
+				// We just serialize the passed data object (i.e. a dictionary)
+				// and then add it to the request body.
+				else if (data != null)
+				{
+					byte[] block = Encoding.UTF8.GetBytes(
 						JsonConvert.SerializeObject(data)
 					);
-
 					request.GetRequestStream().Write(block, 0, block.Length);
 				}
 			}
@@ -168,12 +210,21 @@ namespace Gurock.TestRail
 				{
 					result = JArray.Parse(text);
 				}
-				else 
+				else
 				{
-					result = JObject.Parse(text);
+					try
+					{
+						result = JObject.Parse(text);
+					}
+					catch   // Response is not in JSON format
+					{
+						throw new APIException(String.Format(
+							"TestRail API returned the following: {0}\n",
+							text));
+					}
 				}
 			}
-			else 
+			else
 			{
 				result = new JObject();
 			}
@@ -183,7 +234,7 @@ namespace Gurock.TestRail
 			// by TestRail).
 			if (ex != null)
 			{
-				string error = (string) result["error"];
+				string error = (string)result["error"];
 				if (error != null)
 				{
 					error = '"' + error + '"';
