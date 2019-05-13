@@ -1,7 +1,7 @@
 #
 # TestRail API binding for Python 3.x (API v2, available since
 # TestRail 3.0)
-# Updated for TestRail 5.7
+# Compatible with TestRail 3.0 and later.
 #
 # Learn more:
 #
