@@ -199,7 +199,6 @@ namespace Gurock.TestRail
                 {
                     Stream receiveStream = response.GetResponseStream();
                     Stream fileStream = File.Create((String)data);
-                    Console.WriteLine((String)data);
                     long bytesReceived = 0;
                     int bytesRead;
 
