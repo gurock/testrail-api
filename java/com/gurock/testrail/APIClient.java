@@ -92,8 +92,7 @@ public class APIClient
 	 * API method). In most cases, this returns a JSONObject instance which
 	 * is basically the same as java.util.Map.
 	 * 
-	 * If uri is 'get_attachment/:attachment_id', returns a String after a
-	 * successful attachment download.
+	 * If 'get_attachment/:attachment_id', returns a String
 	 */
 	public Object sendGet(String uri, String data)
 		throws MalformedURLException, IOException, APIException
@@ -229,24 +228,24 @@ public class APIClient
 			istream = conn.getInputStream();
 		}
 		
-        // If 'get_attachment/' returned valid status code, save the file
-        if ((istream != null) && (uri.startsWith("get_attachment/")))
-    	{      	
-            FileOutputStream outputStream = new FileOutputStream((String)data);
- 
-            int bytesRead = 0;
-            byte[] buffer = new byte[1024];
-            while ((bytesRead = istream.read(buffer)) > 0) 
-            {
-                outputStream.write(buffer, 0, bytesRead);
-            }
- 
-            outputStream.close();
-            istream.close();
-            return (String) data;
-        }
-        	
-        // Not an attachment received
+		// If 'get_attachment/' returned valid status code, save the file
+		if ((istream != null) && (uri.startsWith("get_attachment/")))
+		{      	
+			FileOutputStream outputStream = new FileOutputStream((String)data);
+
+			int bytesRead = 0;
+			byte[] buffer = new byte[1024];
+			while ((bytesRead = istream.read(buffer)) > 0) 
+			{
+				outputStream.write(buffer, 0, bytesRead);
+			}
+
+			outputStream.close();
+			istream.close();
+			return (String) data;
+		}
+			
+		// Not an attachment received
 		// Read the response body, if any, and deserialize it from JSON.
 		String text = "";
 		if (istream != null)
