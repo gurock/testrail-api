@@ -1,5 +1,6 @@
 /**
  * TestRail API binding for Java (API v2, available since TestRail 3.0)
+ * Updated for TestRail 5.7
  *
  * Learn more:
  *
@@ -9,19 +10,25 @@
  * Copyright Gurock Software GmbH. See license.md for details.
  */
  
-package com.gurock.testrail;
+package gurock.testrail;
 
 import java.net.URL;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.UnsupportedEncodingException;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+
 
 public class APIClient
 {
@@ -84,9 +91,18 @@ public class APIClient
 	 * either be an instance of JSONObject or JSONArray (depending on the
 	 * API method). In most cases, this returns a JSONObject instance which
 	 * is basically the same as java.util.Map.
+	 * 
+	 * If uri is 'get_attachment/:attachment_id', returns a String after a
+	 * successful attachment download.
 	 */
-	public Object sendGet(String uri)
+	public Object sendGet(String uri, String data)
 		throws MalformedURLException, IOException, APIException
+	{
+		return this.sendRequest("GET", uri, data);
+	}
+	
+	public Object sendGet(String uri)
+			throws MalformedURLException, IOException, APIException
 	{
 		return this.sendRequest("GET", uri, null);
 	}
@@ -103,11 +119,13 @@ public class APIClient
 	 *                      (e.g. add_case/1)
 	 * data                 The data to submit as part of the request (e.g.,
 	 *                      a map)
+	 *                      If adding an attachment, must be the path
+	 *                      to the file
 	 *
 	 * Returns the parsed JSON response as standard object which can
 	 * either be an instance of JSONObject or JSONArray (depending on the
 	 * API method). In most cases, this returns a JSONObject instance which
-	 * is basically the same as java.util.Map.	 
+	 * is basically the same as java.util.Map.
 	 */
 	public Object sendPost(String uri, Object data)
 		throws MalformedURLException, IOException, APIException
@@ -119,30 +137,74 @@ public class APIClient
 		throws MalformedURLException, IOException, APIException
 	{
 		URL url = new URL(this.m_url + uri);
-		
 		// Create the connection object and set the required HTTP method
 		// (GET/POST) and headers (content type and basic auth).
 		HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-		conn.addRequestProperty("Content-Type", "application/json");
 		
 		String auth = getAuthorization(this.m_user, this.m_password);
 		conn.addRequestProperty("Authorization", "Basic " + auth);
 		
 		if (method == "POST")
 		{
+			conn.setRequestMethod("POST");
 			// Add the POST arguments, if any. We just serialize the passed
 			// data object (i.e. a dictionary) and then add it to the
 			// request body.
 			if (data != null)
 			{				
-				byte[] block = JSONValue.toJSONString(data).
-					getBytes("UTF-8");
+				if (uri.startsWith("add_attachment"))   // add_attachment API requests
+				{
+					String boundary = "TestRailAPIAttachmentBoundary"; //Can be any random string
+					File uploadFile = new File((String)data);
+					
+					conn.setDoOutput(true);
+					conn.addRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+					
+					OutputStream ostreamBody = conn.getOutputStream();
+					BufferedWriter bodyWriter = new BufferedWriter(new OutputStreamWriter(ostreamBody));
+					
+					bodyWriter.write("\n\n--" + boundary + "\r\n");
+					bodyWriter.write("Content-Disposition: form-data; name=\"attachment\"; filename=\"" 
+							+ uploadFile.getName() + "\"");
+					bodyWriter.write("\r\n\r\n");
+					bodyWriter.flush();
+					
+					//Read file into request
+					InputStream istreamFile = new FileInputStream(uploadFile);
+					int bytesRead;
+					byte[] dataBuffer = new byte[1024];
+					while ((bytesRead = istreamFile.read(dataBuffer)) != -1)
+					{
+						ostreamBody.write(dataBuffer, 0, bytesRead);
+					}
+					
+					ostreamBody.flush();
+					
+					//end of attachment, add boundary
+					bodyWriter.write("\r\n--" + boundary + "--\r\n");
+					bodyWriter.flush();
 
-				conn.setDoOutput(true);				
-				OutputStream ostream = conn.getOutputStream();			
-				ostream.write(block);
-				ostream.flush();
+					//Close streams
+					istreamFile.close();
+					ostreamBody.close();
+					bodyWriter.close();
+				}
+				else	// Not an attachment
+				{
+					conn.addRequestProperty("Content-Type", "application/json");
+					byte[] block = JSONValue.toJSONString(data).
+						getBytes("UTF-8");
+	
+					conn.setDoOutput(true);
+					OutputStream ostream = conn.getOutputStream();
+					ostream.write(block);
+					ostream.close();
+				}
 			}
+		}
+		else	// GET request
+		{
+			conn.addRequestProperty("Content-Type", "application/json");
 		}
 		
 		// Execute the actual web request (if it wasn't already initiated
@@ -167,6 +229,24 @@ public class APIClient
 			istream = conn.getInputStream();
 		}
 		
+        // If 'get_attachment/' returned valid status code, save the file
+        if ((istream != null) && (uri.startsWith("get_attachment/")))
+    	{      	
+            FileOutputStream outputStream = new FileOutputStream((String)data);
+ 
+            int bytesRead = 0;
+            byte[] buffer = new byte[1024];
+            while ((bytesRead = istream.read(buffer)) > 0) 
+            {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+ 
+            outputStream.close();
+            istream.close();
+            return (String) data;
+        }
+        	
+        // Not an attachment received
 		// Read the response body, if any, and deserialize it from JSON.
 		String text = "";
 		if (istream != null)
