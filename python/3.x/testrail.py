@@ -12,7 +12,8 @@
 #
 
 import requests
-import json, base64
+import json
+import base64
 
 
 class APIClient:
