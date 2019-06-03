@@ -143,7 +143,7 @@ public class APIClient
 		String auth = getAuthorization(this.m_user, this.m_password);
 		conn.addRequestProperty("Authorization", "Basic " + auth);
 		
-		if (method == "POST")
+		if (method.equals("POST"))
 		{
 			conn.setRequestMethod("POST");
 			// Add the POST arguments, if any. We just serialize the passed
@@ -268,7 +268,7 @@ public class APIClient
 		}
 		
 		Object result;
-		if (text != "")
+		if (!text.equals(""))
 		{
 			result = JSONValue.parse(text);
 		}
