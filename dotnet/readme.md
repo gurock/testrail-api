@@ -12,3 +12,8 @@ copyright James Newton-King, licensed under the MIT license and available
 here:
 
 http://james.newtonking.com/json
+
+
+For questions, suggestions, or other requests, please reach out to us through our support channels:
+
+https://www.gurock.com/testrail/support
