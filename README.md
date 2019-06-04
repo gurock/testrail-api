@@ -40,6 +40,12 @@ client = TestRail::Client.new('https://daipresents.com')
 client.initialize_all_param(new_user, new_password, new_project_id)
 ```
 
+Run test case.
+
+```
+$ bundle exec rspec spec/lib/*_spec.rb
+```
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/daipresents/testrail-kit.
