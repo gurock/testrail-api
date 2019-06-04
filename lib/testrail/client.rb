@@ -21,10 +21,10 @@ module TestRail
       Client.check_env_value
 
       super(base_url)
-      initialize_all_param(base_url, ENV['TESTRAIL_USER'], ENV['TESTRAIL_PASSWORD'], ENV['TESTRAIL_PROJECT_ID'])
+      initialize_all_param(ENV['TESTRAIL_USER'], ENV['TESTRAIL_PASSWORD'], ENV['TESTRAIL_PROJECT_ID'])
     end
 
-    def initialize_all_param(base_url, user, password, project_id)
+    def initialize_all_param(user, password, project_id)
       @user = user
       @password = password
       @project_id = project_id
