@@ -34,44 +34,12 @@ module TestRail
       send_get("get_plan/#{plan_id}")
     end
 
-    def create_test_plan(name = 'Test Plan. Created by API (Default)', description = '')
+    def add_plan(name = 'Test Plan. Created by API (Default)', description = '')
       send_post("add_plan/#{@project_id}", 'name': name, 'description': description)
     end
 
-    def delete_test_plan(plan_id)
+    def delete_plan(plan_id)
       send_post("delete_plan/#{plan_id}", nil)
-    end
-
-    def create_test_run
-
-    end
-
-    def update_test_case_result(example)
-
-    end
-
-    def update_manual_test_case_status
-
-    end
-
-    def get_testrail_id_from_tags(tags)
-
-    end
-
-    def get_jira_id_from_tags(tags)
-
-    end
-
-    def create_case_status(example)
-
-    end
-
-    def create_case_comment(example)
-
-    end
-
-    def create_descrption(example)
-
     end
   end
 end
