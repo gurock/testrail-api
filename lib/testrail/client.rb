@@ -3,6 +3,7 @@
 require 'pry'
 require_relative './testrail'
 require_relative './version'
+require_relative './api/plans'
 
 module TestRail
   class Client < TestRail::APIClient
@@ -30,16 +31,6 @@ module TestRail
       @project_id = project_id
     end
 
-    def get_plan(plan_id)
-      send_get("get_plan/#{plan_id}")
-    end
-
-    def add_plan(name = 'Test Plan. Created by API (Default)', description = '')
-      send_post("add_plan/#{@project_id}", 'name': name, 'description': description)
-    end
-
-    def delete_plan(plan_id)
-      send_post("delete_plan/#{plan_id}", nil)
-    end
+    include ::TestRail::API::Plans
   end
 end
