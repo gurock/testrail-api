@@ -4,6 +4,7 @@ require 'pry'
 require_relative './testrail'
 require_relative './version'
 require_relative './api/plans'
+require_relative './api/runs'
 
 module TestRail
   class Client < TestRail::APIClient
@@ -32,5 +33,6 @@ module TestRail
     end
 
     include ::TestRail::API::Plans
+    include ::TestRail::API::Runs
   end
 end
