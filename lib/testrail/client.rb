@@ -14,7 +14,7 @@ module TestRail
       raise 'Please set TESTRAIL_URL. e.g. export TESTRAIL_URL=https://yourdomain.testrai.io/' unless ENV['TESTRAIL_URL']
       raise 'Please set TESTRAIL_USER. e.g. export TESTRAIL_USER=${EMAIL}' unless ENV['TESTRAIL_USER']
       raise 'Please set TESTRAIL_PASSWORD. e.g. export TESTRAIL_PASSWORD=${API_KEY}' unless ENV['TESTRAIL_PASSWORD']
-      raise 'Please set TESTRAIL_PROJECT_ID. e.g. export TESTRAIL_PROJECT_ID=${NUMBER}' unless ENV['TESTRAIL_PASSWORD']
+      raise 'Please set TESTRAIL_PROJECT_ID. e.g. export TESTRAIL_PROJECT_ID=${NUMBER}' unless ENV['TESTRAIL_PROJECT_ID']
     end
 
     def initialize(base_url)
