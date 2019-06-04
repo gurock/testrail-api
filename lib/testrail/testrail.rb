@@ -6,7 +6,7 @@
 # http://docs.gurock.com/testrail-api2/start
 # http://docs.gurock.com/testrail-api2/accessing
 #
-# Copyright Gurock Software GmbH. See license.md for details.
+# Copyright Gurock Software GmbH. See LICENSE.md for details.
 #
 
 require 'net/http'

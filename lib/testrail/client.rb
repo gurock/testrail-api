@@ -1,11 +1,11 @@
-require 'net/http'
-require 'net/https'
-require 'uri'
-require 'json'
+# frozen_string_literal: true
+
 require 'pry'
+require_relative './testrail'
+require_relative './version'
 
 module TestRail
-	class TestRailClient < TestRail::APIClient
+  class Client < TestRail::APIClient
     @project_id = ''
 
     attr_accessor :project_id
@@ -18,7 +18,7 @@ module TestRail
     end
 
     def initialize(base_url)
-      TestRailClient.check_env_value
+      Client.check_env_value
 
       super(base_url)
       initialize_all_param(base_url, ENV['TESTRAIL_USER'], ENV['TESTRAIL_PASSWORD'], ENV['TESTRAIL_PROJECT_ID'])

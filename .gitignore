@@ -1,0 +1,38 @@
+# Generic
+.DS_Store
+*~
+*.bak
+
+# Node
+node_modules
+
+# Ruby
+*.gem
+*.rbc
+.bundle
+.config
+coverage
+InstalledFiles
+lib/bundler/man
+pkg
+rdoc
+spec/examples.txt
+test/tmp
+test/version_tmp
+tmp
+vendor/
+logs/*.log
+screenshots/*
+*.html
+.idea/
+
+# Binaries
+apks/*
+!.gitkeep
+
+# output
+reports/
+*.log
+failure_sreenshot.png
+stepdoc
+gen

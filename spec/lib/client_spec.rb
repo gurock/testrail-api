@@ -1,12 +1,11 @@
-require 'rspec'
-require_relative './testrail'
-require_relative './testrail_client'
+# frozen_string_literal: true
 
 RSpec.describe 'TestRail API' do
   it 'can get/create/delete test plan' do
-    client = TestRail::TestRailClient.new(ENV['TESTRAIL_URL'])
+    binding.pry
+    client = TestRail::Client.new(ENV['TESTRAIL_URL'])
 
-    plan = client.create_test_plan('TestRailClientでつくったやーつ', '説明もかけます')
+    plan = client.create_test_plan('Clientでつくったやーつ', '説明もかけます')
     expect(plan).not_to be_nil
 
     plan_id = plan['id']
