@@ -2,7 +2,6 @@
 
 RSpec.describe 'TestRail API' do
   it 'can get/create/delete test plan' do
-    binding.pry
     client = TestRail::Client.new(ENV['TESTRAIL_URL'])
 
     plan = client.create_test_plan('Clientでつくったやーつ', '説明もかけます')
