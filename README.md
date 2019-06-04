@@ -1,38 +1,48 @@
-# Testrail::Kit
+# TestRail::Kit
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/testrail/kit`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+TestRail::Kit provide client for TestRail by Ruby.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'client'
+gem 'testrail-kit', :git => 'git@github.com:daipresents/testrail-kit.git'
 ```
 
 And then execute:
 
-    $ bundle
+    $ bundle install
 
-Or install it yourself as:
 
-    $ gem install testrail-kit
+Setting environmental values like this:
+
+```
+$ export TESTRAIL_URL=https://yourdomain.testrai.io/'
+$ export TESTRAIL_USER=${EMAIL}'
+$ export TESTRAIL_PASSWORD=${API_KEY}'
+$ export TESTRAIL_PROJECT_ID=${NUMBER}'
+```
 
 ## Usage
 
-TODO: Write usage instructions here
+Please check spec files. You can see the usage of this library like this:
 
-## Development
+```ruby
+client = TestRail::Client.new(ENV['TESTRAIL_URL'])
+plan = client.add_plan('Clientでつくったやーつ', '説明もかけます')
+```
 
-After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+If you want to set your value for user, password, project_id, 
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+```ruby
+client = TestRail::Client.new('https://daipresents.com')
+client.initialize_all_param(new_user, new_password, new_project_id)
+```
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/testrail-kit.
+Bug reports and pull requests are welcome on GitHub at https://github.com/daipresents/testrail-kit.
 
 ## About TestRail
 
