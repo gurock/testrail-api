@@ -8,7 +8,7 @@ module TestRail
       end
 
       def get_default_payload(name = nil, description = nil)
-        return {
+        {
           suite_id: nil,
           name: name,
           description: description,
