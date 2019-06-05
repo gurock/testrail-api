@@ -10,7 +10,7 @@ RSpec.describe 'TestRail' do
       end
 
       it 'get default payload' do
-        payload = @client.get_default_payload
+        payload = @client.get_run_payload
 
         expect(payload[:suite_id]).to be_nil
         expect(payload[:name]).to be_nil
@@ -23,14 +23,14 @@ RSpec.describe 'TestRail' do
       end
 
       it 'get default payload with name and description' do
-        payload = @client.get_default_payload(@name, @description)
+        payload = @client.get_run_payload(@name, @description)
 
         expect(payload[:name]).to eq(@name)
         expect(payload[:description]).to eq(@description)
       end
 
       it 'can add/get/delete test run ' do
-        payload = @client.get_default_payload(@name, @description)
+        payload = @client.get_run_payload(@name, @description)
 
         run = @client.add_run(payload.compact)
         run = @client.get_run(run['id'])
@@ -48,7 +48,7 @@ RSpec.describe 'TestRail' do
       end
 
       it 'can add/close test run ' do
-        payload = @client.get_default_payload(@name, @description)
+        payload = @client.get_run_payload(@name, @description)
 
         run = @client.add_run(payload.compact)
         run_id = run['id']

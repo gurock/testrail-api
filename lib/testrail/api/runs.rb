@@ -7,15 +7,17 @@ module TestRail
         send_get("get_run/#{run_id}")
       end
 
-      def get_default_payload(name = nil, description = nil)
+      def get_run_payload(
+          name = nil, description = nil, suite_id = nil,
+          milestone_id = nil, assignedto_id = nil, include_all = nil, case_ids = nil)
         {
-          suite_id: nil,
           name: name,
           description: description,
-          milestone_id: nil,
-          assignedto_id: nil,
-          include_all: nil,
-          case_ids: nil
+          suite_id: suite_id,
+          milestone_id: milestone_id,
+          assignedto_id: assignedto_id,
+          include_all: include_all,
+          case_ids: case_ids
         }
       end
 
