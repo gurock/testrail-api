@@ -8,7 +8,7 @@ module TestRail
       end
 
       def add_result_for_case(run_id, case_id, payload)
-        send_post("add_result_for_case/#{run_id}/#{case_id}", payload)
+        send_post("add_result_for_case/#{run_id}/#{case_id}", payload.compact)
       end
 
       def get_result_payload(

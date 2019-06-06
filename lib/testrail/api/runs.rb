@@ -22,7 +22,7 @@ module TestRail
       end
 
       def add_run(payload)
-        send_post("add_run/#{@project_id}", payload)
+        send_post("add_run/#{@project_id}", payload.compact)
       end
 
       def close_run(run_id)
