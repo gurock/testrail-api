@@ -11,9 +11,10 @@
 # Copyright Gurock Software GmbH. See license.md for details.
 #
 
-import requests
-import json
 import base64
+import json
+
+import requests
 
 
 class APIClient:
