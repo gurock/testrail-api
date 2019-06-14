@@ -10,7 +10,7 @@ RSpec.describe 'TestRail' do
       end
 
       it 'can get/create/delete test plan' do
-        plan = @client.add_plan(@name, @description)
+        plan = @client.add_plan(name: @name, description: @description)
         expect(plan).not_to be_nil
 
         plan_id = plan['id']
@@ -28,8 +28,8 @@ RSpec.describe 'TestRail' do
         name2 = "#{@name}2"
         description2 = "#{@description}2"
 
-        @client.add_plan(name1, description1)
-        @client.add_plan(name2, description2)
+        @client.add_plan(name: name1, description: description1)
+        @client.add_plan(name: name2, description: description2)
 
         plans = @client.get_plans
         expect(plans[0]['name']).to eq(name2)
@@ -39,7 +39,7 @@ RSpec.describe 'TestRail' do
       end
 
       it 'can close test plan' do
-        plan = @client.add_plan('Clientでつくったやーつ', '説明もかけます')
+        plan = @client.add_plan(name: 'Clientでつくったやーつ', description: '説明もかけます')
         plan_id = plan['id']
         expect(plan['is_completed']).to be false
 

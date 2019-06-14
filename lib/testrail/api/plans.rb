@@ -11,8 +11,8 @@ module TestRail
         send_get("get_plans/#{@project_id}")
       end
 
-      def add_plan(name = 'Test Plan. Created by API (Default)', description = '')
-        send_post("add_plan/#{@project_id}", 'name': name, 'description': description)
+      def add_plan(payload)
+        send_post("add_plan/#{@project_id}", payload)
       end
 
       def close_plan(plan_id)
