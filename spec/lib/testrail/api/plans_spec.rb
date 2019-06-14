@@ -48,6 +48,15 @@ RSpec.describe 'TestRail' do
         plan = @client.get_plan(plan_id)
         expect(plan['is_completed']).to be true
       end
+
+      it 'get default payload' do
+        payload = @client.payload_for_plan
+
+        expect(payload[:name]).to be_nil
+        expect(payload[:description]).to be_nil
+        expect(payload[:milestone_id]).to be_nil
+        expect(payload[:entries]).to be_nil
+      end
     end
   end
 end

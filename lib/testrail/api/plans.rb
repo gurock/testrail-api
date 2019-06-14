@@ -22,6 +22,15 @@ module TestRail
       def delete_plan(plan_id)
         send_post("delete_plan/#{plan_id}", nil)
       end
+
+      def payload_for_plan
+        {
+          name: nil,
+          description: nil,
+          milestone_id: nil,
+          entries: nil
+        }
+      end
     end
   end
 end
