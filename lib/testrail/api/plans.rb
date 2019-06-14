@@ -7,6 +7,10 @@ module TestRail
         send_get("get_plan/#{plan_id}")
       end
 
+      def get_plans
+        send_get("get_plans/#{@project_id}")
+      end
+
       def add_plan(name = 'Test Plan. Created by API (Default)', description = '')
         send_post("add_plan/#{@project_id}", 'name': name, 'description': description)
       end

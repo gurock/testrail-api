@@ -21,6 +21,23 @@ RSpec.describe 'TestRail' do
         expect { @client.get_plan(plan_id) }.to raise_error(TestRail::APIError, 'TestRail API returned HTTP 400 ("Field :plan_id is not a valid test plan.")')
       end
 
+      it 'can get test plans' do
+        name1 = "#{@name}1"
+        description1 = "#{@description}1"
+
+        name2 = "#{@name}2"
+        description2 = "#{@description}2"
+
+        @client.add_plan(name1, description1)
+        @client.add_plan(name2, description2)
+
+        plans = @client.get_plans
+        expect(plans[0]['name']).to eq(name2)
+        expect(plans[0]['description']).to eq(description2)
+        expect(plans[1]['name']).to eq(name1)
+        expect(plans[1]['description']).to eq(description1)
+      end
+
       it 'can close test plan' do
         plan = @client.add_plan('Clientでつくったやーつ', '説明もかけます')
         plan_id = plan['id']
