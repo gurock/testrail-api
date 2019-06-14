@@ -22,7 +22,10 @@ $ export TESTRAIL_URL=https://yourdomain.testrai.io/
 $ export TESTRAIL_USER=${EMAIL}
 $ export TESTRAIL_PASSWORD=${API_KEY}
 $ export TESTRAIL_PROJECT_ID=${NUMBER}
+$ export TESTRAIL_PCASE_ID=${NUMBER}
 ```
+
+If you want to test this library, you need these environmental variables. Sorry, now I don't provide local testing.
 
 ## Usage
 
