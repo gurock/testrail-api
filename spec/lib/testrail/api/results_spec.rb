@@ -4,7 +4,7 @@ RSpec.describe 'TestRail' do
   context 'API' do
     context 'Results' do
       before(:each) do
-        @client = TestRail::Client.new(ENV['TESTRAIL_URL'])
+        @client = TestRail::Client.new(TestRail.config.testrail_url)
       end
 
       it 'get default payload' do
@@ -38,7 +38,7 @@ RSpec.describe 'TestRail' do
 
       context 'result for case' do
         before(:each) do
-          @case_id = '13539'
+          @case_id = TestRail.config.testrail_case_id
           @run = @client.add_run(@client.get_run_payload('Run Name', 'Run Description').compact)
         end
 

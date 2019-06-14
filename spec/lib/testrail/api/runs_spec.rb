@@ -4,7 +4,7 @@ RSpec.describe 'TestRail' do
   context 'API' do
     context 'Runs' do
       before(:each) do
-        @client = TestRail::Client.new(ENV['TESTRAIL_URL'])
+        @client = TestRail::Client.new(TestRail.config.testrail_url)
         @name = 'Test Run Name'
         @description = 'Test Run Description'
       end
