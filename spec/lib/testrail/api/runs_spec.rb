@@ -38,6 +38,27 @@ RSpec.describe 'TestRail' do
         expect { @client.get_run(run['id']) }.to raise_error(TestRail::APIError, 'TestRail API returned HTTP 400 ("Field :run is not a valid test run.")')
       end
 
+      it 'can get runs' do
+        name1 = "#{@name}1"
+        description1 = "#{@description}1"
+        payload = @client.payload_for_run
+        payload[:name] = name1
+        payload[:description] = description1
+        @client.add_run(payload.compact)
+
+        name2 = "#{@name}2"
+        description2 = "#{@description}2"
+        payload[:name] = name2
+        payload[:description] = description2
+        @client.add_run(payload.compact)
+
+        runs = @client.get_runs
+        expect(runs[0]['name']).to eq(name2)
+        expect(runs[0]['description']).to eq(description2)
+        expect(runs[1]['name']).to eq(name1)
+        expect(runs[1]['description']).to eq(description1)
+      end
+
       it 'can add/close test run ' do
         payload = @client.payload_for_run
         payload[:name] = @name
