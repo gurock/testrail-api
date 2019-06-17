@@ -7,8 +7,16 @@ module TestRail
         send_get("get_run/#{run_id}")
       end
 
+      def get_runs
+        send_get("get_runs/#{@project_id}")
+      end
+
       def add_run(payload)
         send_post("add_run/#{@project_id}", payload.compact)
+      end
+
+      def update_run(run_id)
+        send_post("update_run/#{run_id}", payload.compact)
       end
 
       def close_run(run_id)
