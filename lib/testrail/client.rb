@@ -45,29 +45,19 @@ module TestRail
     include ::TestRail::API::Tests
     include ::TestRail::API::Users
 
+    def initialize(
+        testrail_url: TestRail.config.testrail_url,
+        testrail_user: TestRail.config.testrail_user,
+        testrail_password: TestRail.config.testrail_password
+    )
+      raise 'Please set url of TestRail API. e.g. export TESTRAIL_URL' unless testrail_url
+      raise 'Please set user of TestRail API. e.g. export TESTRAIL_USER' unless testrail_user
+      raise 'Please set password of TestRail API. e.g. export TESTRAIL_PASSWORD' unless testrail_password
 
-    @project_id = ''
+      super(testrail_url)
 
-    attr_accessor :project_id
-
-    def self.check_env_value
-      raise 'Please set TESTRAIL_URL. e.g. export TESTRAIL_URL=https://yourdomain.testrai.io/' unless TestRail.config.testrail_url
-      raise 'Please set TESTRAIL_USER. e.g. export TESTRAIL_USER=${EMAIL}' unless  TestRail.config.testrail_user
-      raise 'Please set TESTRAIL_PASSWORD. e.g. export TESTRAIL_PASSWORD=${API_KEY}' unless  TestRail.config.testrail_password
-      raise 'Please set TESTRAIL_PROJECT_ID. e.g. export TESTRAIL_PROJECT_ID=${NUMBER}' unless  TestRail.config.testrail_project_id
-    end
-
-    def initialize(base_url)
-      Client.check_env_value
-
-      super(base_url)
-      initialize_all_param(TestRail.config.testrail_user, TestRail.config.testrail_password, TestRail.config.testrail_project_id)
-    end
-
-    def initialize_all_param(user, password, project_id)
-      @user = user
-      @password = password
-      @project_id = project_id
+      @user = testrail_user
+      @password = testrail_password
     end
   end
 end

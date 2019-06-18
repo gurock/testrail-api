@@ -13,7 +13,7 @@ module TestRail
 
   class Config
     include ActiveSupport::Configurable
-    config_accessor :testrail_url, :testrail_user, :testrail_password, :testrail_project_id, :testrail_case_id, :logger
+    config_accessor :testrail_url, :testrail_user, :testrail_password, :logger
 
     def initialize
       default_config
@@ -23,8 +23,6 @@ module TestRail
       self.testrail_url = ENV['TESTRAIL_URL']
       self.testrail_user = ENV['TESTRAIL_USER']
       self.testrail_password = ENV['TESTRAIL_PASSWORD']
-      self.testrail_project_id = ENV['TESTRAIL_PROJECT_ID']
-      self.testrail_case_id = ENV['TESTRAIL_CASE_ID']
       self.logger = Logger.new STDOUT
     end
   end
