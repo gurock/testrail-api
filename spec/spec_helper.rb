@@ -19,7 +19,7 @@ RSpec.configure do |config|
 
   config.around(:example) do |example|
     example.metadata[:project_id] = project['id']
-    example.metadata[:test_case] = test_case['id']
+    example.metadata[:case_id] = test_case['id']
     example.run
   end
 
