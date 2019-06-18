@@ -21,8 +21,6 @@ Setting environmental values like this:
 $ export TESTRAIL_URL=https://yourdomain.testrai.io/
 $ export TESTRAIL_USER=${EMAIL}
 $ export TESTRAIL_PASSWORD=${API_KEY}
-$ export TESTRAIL_PROJECT_ID=${NUMBER}
-$ export TESTRAIL_PCASE_ID=${NUMBER}
 ```
 
 If you want to test this library, you need these environmental variables. Sorry, now I don't provide local testing.
@@ -43,7 +41,22 @@ client = TestRail::Client.new('https://daipresents.com')
 client.initialize_all_param(new_user, new_password, new_project_id)
 ```
 
-Run test case.
+For running test cases. Prepare data on TestRail like this:
+
+```
+1. Create project and get project id.
+2. Create case and get case id.
+
+```
+
+Setting environmental variables like this:
+
+```
+$ export TESTRAIL_PROJECT_ID=${NUMBER}
+$ export TESTRAIL_CASE_ID=${NUMBER}
+```
+
+Run tests.
 
 ```
 $ bundle exec rspec spec/lib/*_spec.rb
