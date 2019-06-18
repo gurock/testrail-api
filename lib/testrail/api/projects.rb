@@ -23,7 +23,7 @@ module TestRail
         send_post("delete_project/#{project_id}", nil)
       end
 
-      def payload_for_project
+      def payload_for_adding_project
         {
           name: nil,
           announcement: nil,

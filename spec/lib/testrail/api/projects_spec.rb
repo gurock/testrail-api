@@ -4,13 +4,13 @@ RSpec.describe 'TestRail' do
   context 'API' do
     context 'Projects' do
       before(:each) do
-        @client = TestRail::Client.new(TestRail.config.testrail_url)
+        @client = TestRail::Client.new
         @name = 'Project name'
         @announcement = 'Project announcement'
       end
 
       it 'can create/get/delete project' do
-        payload = @client.payload_for_project
+        payload = @client.payload_for_adding_project
         payload[:name] = @name
         payload[:announcement] = @announcement
         project = @client.add_project(payload)
@@ -28,7 +28,7 @@ RSpec.describe 'TestRail' do
       end
 
       it 'can get projects' do
-        payload = @client.payload_for_project
+        payload = @client.payload_for_adding_project
 
         name1 = "#{@name}1"
         announcement1 = "#{@announcement}1"
@@ -72,7 +72,7 @@ RSpec.describe 'TestRail' do
       end
 
       it 'can update project' do
-        payload = @client.payload_for_project
+        payload = @client.payload_for_adding_project
         payload[:name] = @name
         payload[:announcement] = @announcement
         project = @client.add_project(payload)
@@ -93,7 +93,7 @@ RSpec.describe 'TestRail' do
       end
 
       it 'get default payload' do
-        payload = @client.payload_for_project
+        payload = @client.payload_for_adding_project
 
         expect(payload[:name]).to be_nil
         expect(payload[:announcement]).to be_nil
