@@ -4,14 +4,15 @@ RSpec.describe 'TestRail' do
   context 'API' do
     context 'Cases' do
       before(:each) do
-        @client = TestRail::Client.new(TestRail.config.testrail_url)
+        @project_id = RSpec.current_example.metadata[:project_id]
+        @client = TestRail::Client.new
         @title = 'Case Title'
       end
 
       it 'can get/create/delete test case' do
         payload = @client.payload_for_adding_section
         payload[:name] = 'Section name'
-        section = @client.add_section(TestRail.config.testrail_project_id, payload)
+        section = @client.add_section(@project_id, payload)
 
         payload = @client.payload_for_adding_case
         payload[:title] = @title
@@ -36,7 +37,7 @@ RSpec.describe 'TestRail' do
       it 'can get test case' do
         payload = @client.payload_for_adding_section
         payload[:name] = 'Section name'
-        section = @client.add_section(TestRail.config.testrail_project_id, payload)
+        section = @client.add_section(@project_id, payload)
 
         title1 = "#{@title}1"
         payload = @client.payload_for_adding_case
@@ -49,7 +50,7 @@ RSpec.describe 'TestRail' do
 
         payload = @client.params_for_getting_cases
         payload[:filter] = @title
-        test_cases = @client.get_cases(TestRail.config.testrail_project_id, payload)
+        test_cases = @client.get_cases(@project_id, payload)
 
         is_title = false
         test_cases.each do |test_case|
@@ -61,9 +62,9 @@ RSpec.describe 'TestRail' do
         expect(is_title).to be true
 
         begin
-          @client.delete_section(section['id'])
-          @client.delete_case(test_case1['id'])
           @client.delete_case(test_case2['id'])
+          @client.delete_case(test_case1['id'])
+          @client.delete_section(section['id'])
         rescue => e
           # Delete test data
           p e.message
@@ -73,7 +74,7 @@ RSpec.describe 'TestRail' do
       it 'can update test case' do
         payload = @client.payload_for_adding_section
         payload[:name] = 'Section name'
-        section = @client.add_section(TestRail.config.testrail_project_id, payload)
+        section = @client.add_section(@project_id, payload)
 
         payload = @client.payload_for_adding_case
         payload[:title] = @title
