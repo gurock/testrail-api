@@ -30,33 +30,17 @@ If you want to test this library, you need these environmental variables. Sorry,
 Please check spec files. You can see the usage of this library like this:
 
 ```ruby
-client = TestRail::Client.new(ENV['TESTRAIL_URL'])
-plan = client.add_plan('Clientでつくったやーつ', '説明もかけます')
+client = TestRail::Client.new
+plan = client.add_plan(payload)
 ```
 
-If you want to set your value for user, password, project_id, 
+You can set your values. url, user, password. 
 
 ```ruby
-client = TestRail::Client.new('https://daipresents.com')
-client.initialize_all_param(new_user, new_password, new_project_id)
+client = TestRail::Client.new('url', 'user', 'password')
 ```
 
-For running test cases. Prepare data on TestRail like this:
-
-```
-1. Create project and get project id.
-2. Create case and get case id.
-
-```
-
-Setting environmental variables like this:
-
-```
-$ export TESTRAIL_PROJECT_ID=${NUMBER}
-$ export TESTRAIL_CASE_ID=${NUMBER}
-```
-
-Run tests.
+For running test cases like this:
 
 ```
 $ bundle exec rspec spec/lib/*_spec.rb

@@ -4,18 +4,19 @@ RSpec.describe 'TestRail' do
   context 'API' do
     context 'Runs' do
       before(:each) do
-        @client = TestRail::Client.new(TestRail.config.testrail_url)
+        @project_id = RSpec.current_example.metadata[:project_id]
+        @client = TestRail::Client.new
         @name = 'Test Run Name'
         @description = 'Test Run Description'
       end
 
       context '.add_run, .get_run, .delete_run' do
         it 'can add/get/delete test run ' do
-          payload = @client.payload_for_run
+          payload = @client.payload_for_adding_run
           payload[:name] = @name
           payload[:description] = @description
 
-          run = @client.add_run(payload.compact)
+          run = @client.add_run(@project_id, payload.compact)
           run = @client.get_run(run['id'])
 
           expect(run['name']).to eq(@name)
@@ -35,18 +36,18 @@ RSpec.describe 'TestRail' do
         it 'can get runs' do
           name1 = "#{@name}1"
           description1 = "#{@description}1"
-          payload = @client.payload_for_run
+          payload = @client.payload_for_adding_run
           payload[:name] = name1
           payload[:description] = description1
-          @client.add_run(payload.compact)
+          @client.add_run(@project_id, payload.compact)
 
           name2 = "#{@name}2"
           description2 = "#{@description}2"
           payload[:name] = name2
           payload[:description] = description2
-          @client.add_run(payload.compact)
+          @client.add_run(@project_id, payload.compact)
 
-          runs = @client.get_runs
+          runs = @client.get_runs(@project_id)
           expect(runs[0]['name']).to eq(name2)
           expect(runs[0]['description']).to eq(description2)
           expect(runs[1]['name']).to eq(name1)
@@ -56,18 +57,18 @@ RSpec.describe 'TestRail' do
 
       context '.update_run' do
         it 'can update run' do
-          payload = @client.payload_for_run
+          payload = @client.payload_for_adding_run
           payload[:name] = @name
           payload[:description] = @description
-          @client.add_run(payload.compact)
+          @client.add_run(@project_id, payload.compact)
 
           # Update
           name1 = "#{@name}1"
           description1 = "#{@description}1"
-          payload = @client.payload_for_run
+          payload = @client.payload_for_adding_run
           payload[:name] = name1
           payload[:description] = description1
-          run = @client.add_run(payload.compact)
+          run = @client.add_run(@project_id, payload.compact)
 
           run = @client.get_run(run['id'])
           expect(run['name']).to eq(name1)
@@ -77,11 +78,11 @@ RSpec.describe 'TestRail' do
 
       context '.close_run' do
         it 'can add/close test run ' do
-          payload = @client.payload_for_run
+          payload = @client.payload_for_adding_run
           payload[:name] = @name
           payload[:description] = @description
 
-          run = @client.add_run(payload.compact)
+          run = @client.add_run(@project_id, payload.compact)
           run_id = run['id']
           expect(run['is_completed']).to be false
 
@@ -94,7 +95,7 @@ RSpec.describe 'TestRail' do
 
       context '.payload_for_run' do
         it 'get default payload' do
-          payload = @client.payload_for_run
+          payload = @client.payload_for_adding_run
 
           expect(payload[:name]).to be_nil
           expect(payload[:description]).to be_nil
@@ -107,7 +108,7 @@ RSpec.describe 'TestRail' do
         end
 
         it 'get default payload with name and description' do
-          payload = @client.payload_for_run
+          payload = @client.payload_for_adding_run
           payload[:name] = @name
           payload[:description] = @description
 

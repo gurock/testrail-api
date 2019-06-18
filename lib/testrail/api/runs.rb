@@ -7,12 +7,12 @@ module TestRail
         send_get("get_run/#{run_id}")
       end
 
-      def get_runs
-        send_get("get_runs/#{@project_id}")
+      def get_runs(project_id)
+        send_get("get_runs/#{project_id}")
       end
 
-      def add_run(payload)
-        send_post("add_run/#{@project_id}", payload.compact)
+      def add_run(project_id, payload)
+        send_post("add_run/#{project_id}", payload.compact)
       end
 
       def update_run(run_id)
@@ -27,7 +27,7 @@ module TestRail
         send_post("delete_run/#{run_id}", nil)
       end
 
-      def payload_for_run
+      def payload_for_adding_run
         {
           name: nil,
           description: nil,
