@@ -7,8 +7,8 @@ module TestRail
         send_get("get_user/#{user_id}")
       end
 
-      def get_user_by_email(params)
-        query = '?'
+      def get_user_by_email(params = {})
+        query = ''
         params.each do |key, value|
           query = "#{query}&#{key}=#{value}"
         end

@@ -7,8 +7,8 @@ module TestRail
         send_get("get_section/#{section_id}")
       end
 
-      def get_sections(project_id, params)
-        query = '?'
+      def get_sections(project_id, params = {})
+        query = ''
         params.each do |key, value|
           query = "#{query}&#{key}=#{value}"
         end

@@ -7,8 +7,8 @@ module TestRail
         send_get("get_test/#{test_id}")
       end
 
-      def get_tests(run_id, params)
-        query = '?'
+      def get_tests(run_id, params = {})
+        query = ''
         params.each do |key, value|
           query = "#{query}&#{key}=#{value}"
         end
