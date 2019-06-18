@@ -4,11 +4,18 @@ require 'pry'
 require_relative './testrail'
 require_relative './version'
 require_relative './api/plans'
-require_relative './api/runs'
+require_relative './api/projects'
 require_relative './api/results'
+require_relative './api/runs'
 
 module TestRail
   class Client < TestRail::APIClient
+
+    include ::TestRail::API::Plans
+    include ::TestRail::API::Projects
+    include ::TestRail::API::Results
+    include ::TestRail::API::Runs
+
     @project_id = ''
 
     attr_accessor :project_id
@@ -32,9 +39,5 @@ module TestRail
       @password = password
       @project_id = project_id
     end
-
-    include ::TestRail::API::Plans
-    include ::TestRail::API::Runs
-    include ::TestRail::API::Results
   end
 end
