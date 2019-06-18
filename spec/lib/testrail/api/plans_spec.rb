@@ -4,13 +4,17 @@ RSpec.describe 'TestRail' do
   context 'API' do
     context 'Plans' do
       before(:each) do
-        @client = TestRail::Client.new(TestRail.config.testrail_url)
+        @project_id = RSpec.current_example.metadata[:project_id]
+        @client = TestRail::Client.new
         @name = 'Test Plan Name'
         @description = 'Test Plan Description'
       end
 
       it 'can get/create/delete test plan' do
-        plan = @client.add_plan(name: @name, description: @description)
+        payload = @client.payload_for_adding_plan
+        payload[:name] = @name
+        payload[:description] = @description
+        plan = @client.add_plan(@project_id, payload)
         expect(plan).not_to be_nil
 
         plan_id = plan['id']
@@ -24,14 +28,18 @@ RSpec.describe 'TestRail' do
       it 'can get test plans' do
         name1 = "#{@name}1"
         description1 = "#{@description}1"
+        payload = @client.payload_for_adding_plan
+        payload[:name] = name1
+        payload[:description] = description1
+        @client.add_plan(@project_id, payload)
 
         name2 = "#{@name}2"
         description2 = "#{@description}2"
+        payload[:name] = name2
+        payload[:description] = description2
+        @client.add_plan(@project_id, payload)
 
-        @client.add_plan(name: name1, description: description1)
-        @client.add_plan(name: name2, description: description2)
-
-        plans = @client.get_plans
+        plans = @client.get_plans(@project_id)
         expect(plans[0]['name']).to eq(name2)
         expect(plans[0]['description']).to eq(description2)
         expect(plans[1]['name']).to eq(name1)
@@ -39,7 +47,10 @@ RSpec.describe 'TestRail' do
       end
 
       it 'can close test plan' do
-        plan = @client.add_plan(name: 'Clientでつくったやーつ', description: '説明もかけます')
+        payload = @client.payload_for_adding_plan
+        payload[:name] = @name
+        payload[:description] = @description
+        plan = @client.add_plan(@project_id, payload)
         plan_id = plan['id']
         expect(plan['is_completed']).to be false
 
@@ -50,7 +61,7 @@ RSpec.describe 'TestRail' do
       end
 
       it 'get default payload' do
-        payload = @client.payload_for_plan
+        payload = @client.payload_for_adding_plan
 
         expect(payload[:name]).to be_nil
         expect(payload[:description]).to be_nil
