@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'pry'
 require_relative './testrail'
 require_relative './version'
 require_relative './api/plans'
