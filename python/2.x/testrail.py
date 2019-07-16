@@ -92,7 +92,10 @@ class APIClient:
                 except:
                     return ("Error saving attachment.")
             else:
-                return response.json()
+                try:
+                    return response.json()
+                except: # Nothing to return
+                    return {}
 
 
 class APIError(Exception):
