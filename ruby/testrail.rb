@@ -1,5 +1,6 @@
 #
-# TestRail API binding for Ruby (API v2, available since TestRail 3.0)
+# TestRail API binding for Java (API v2, available since TestRail 3.0)
+#  Updated for TestRail 5.7
 #
 # Learn more:
 #
@@ -35,14 +36,18 @@ module TestRail
 		#
 		# Issues a GET request (read) against the API and returns the result
 		# (as Ruby hash).
+		# If 'get_attachment/{id}' is successful, returns the data parameter
 		#
 		# Arguments:
 		#
 		# uri                 The API method to call including parameters
 		#                     (e.g. get_case/1)
+		# data                When using get_attachment/{id}, this should be
+		#                     the file path (including filename) where the 
+		#                     attachment should be saved
 		#
-		def send_get(uri) 
-			_send_request('GET', uri, nil)
+		def send_get(uri, data=nil) 
+			_send_request('GET', uri, data)
 		end
 
 		#
@@ -57,6 +62,8 @@ module TestRail
 		#                     (e.g. add_case/1)
 		# data                The data to submit as part of the request (as
 		#                     Ruby hash, strings must be UTF-8 encoded)
+		#                     If adding an attachment, should be the path
+		#                     to the file
 		#
 		def send_post(uri, data)
 			_send_request('POST', uri, data)
@@ -67,12 +74,26 @@ module TestRail
 			url = URI.parse(@url + uri)
 			if method == 'POST'
 				request = Net::HTTP::Post.new(url.path + '?' + url.query)
-				request.body = JSON.dump(data)
+					if uri.start_with?('add_attachment')
+						boundary = "TestRailAPIAttachmentBoundary"
+						post_body = []
+						post_body << "--#{boundary}\r\n"
+						post_body << "Content-Disposition: form-data; name=\"attachment\"; filename=\"#{File.basename(data)}\"\r\n"
+						post_body << "\r\n"
+						post_body << File.read(data)
+						post_body << "\r\n--#{boundary}--\r\n"
+						
+						request.body = post_body.join
+						request["Content-Type"] = "multipart/form-data; boundary=#{boundary}"
+					else
+						request["Content-Type"] = "application/json"
+						request.body = JSON.dump(data)
+					end
 			else
 				request = Net::HTTP::Get.new(url.path + '?' + url.query)
+				request["Content-Type"] = "application/json"
 			end
 			request.basic_auth(@user, @password)
-			request.add_field('Content-Type', 'application/json')
 
 			conn = Net::HTTP.new(url.host, url.port)
 			if url.scheme == 'https'
@@ -81,8 +102,13 @@ module TestRail
 			end
 			response = conn.request(request)
 
-			if response.body && !response.body.empty?
-				result = JSON.parse(response.body)
+			if response.body && !response.body.empty? && (response.code == '200')
+				if uri.start_with?('get_attachment') and not uri.start_with?('get_attachments')
+					File.open(data, 'w') { |file| file.write(response.body) }
+					result = data
+				else
+					result = JSON.parse(response.body)
+				end
 			else
 				result = {}
 			end
