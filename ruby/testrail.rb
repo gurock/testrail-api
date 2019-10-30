@@ -75,6 +75,7 @@ module TestRail
 			if method == 'POST'
 				request = Net::HTTP::Post.new(url.path + '?' + url.query)
 					if uri.start_with?('add_attachment')
+						# SOURCE: https://yukimotopress.github.io/http
 						boundary = "TestRailAPIAttachmentBoundary"
 						post_body = []
 						post_body << "--#{boundary}\r\n"
