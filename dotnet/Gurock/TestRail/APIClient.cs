@@ -190,8 +190,11 @@ namespace Gurock.TestRail
                 ex = e;
             }
 
-            // If 'get_attachment/' returned valid status code, save the file
-            if ((response != null) && ((int)response.StatusCode == 200) && (uri.StartsWith("get_attachment")))
+            // If 'get_attachment' (but not 'get_attachments') returned valid status code, save the file
+            if ((response != null) 
+                && ((int)response.StatusCode == 200) 
+                && (uri.StartsWith("get_attachment"))
+                && !(uri.StartsWith("get_attachments")))
             {
                 byte[] buffer = new byte[1024];
 
