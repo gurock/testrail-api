@@ -148,8 +148,7 @@ class TestRailAPIClient
         if ($response)
         {
 
-            if ((substr($uri, 0, 14) == "get_attachment")
-                && (substr($uri, 0, 15) != "get_attachments")
+            if ((substr($uri, 0, 15) == "get_attachment/")
                 && ($info['http_code'] == 200))
             {
                 // Receive attachment
