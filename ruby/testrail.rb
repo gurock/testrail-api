@@ -104,7 +104,7 @@ module TestRail
 			response = conn.request(request)
 
 			if response.body && !response.body.empty? && (response.code == '200')
-				if uri.start_with?('get_attachment') and not uri.start_with?('get_attachments')
+				if uri.start_with?('get_attachment/')
 					File.open(data, 'w') { |file| file.write(response.body) }
 					result = data
 				else
