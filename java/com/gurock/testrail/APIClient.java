@@ -230,8 +230,7 @@ public class APIClient
 		
         // If 'get_attachment' (not 'get_attachments') returned valid status code, save the file
         if ((istream != null) 
-	    && (uri.startsWith("get_attachment"))
-	    && !(uri.startsWith("get_attachments")))
+	    && (uri.startsWith("get_attachment/")))
     	{      	
             FileOutputStream outputStream = new FileOutputStream((String)data);
  
