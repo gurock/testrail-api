@@ -10,7 +10,7 @@
  * Copyright Gurock Software GmbH. See license.md for details.
  */
  
-package gurock.testrail;
+package com.gurock.testrail;
 
 import java.net.URL;
 import java.net.HttpURLConnection;
