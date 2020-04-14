@@ -81,7 +81,7 @@ module TestRail
 						post_body << "--#{boundary}\r\n"
 						post_body << "Content-Disposition: form-data; name=\"attachment\"; filename=\"#{File.basename(data)}\"\r\n"
 						post_body << "\r\n"
-						post_body << File.read(data)
+						post_body << File.open(data, 'rb') {|io| io.read}
 						post_body << "\r\n--#{boundary}--\r\n"
 						
 						request.body = post_body.join
