@@ -23,6 +23,7 @@ class APIClient:
     def __init__(self, base_url):
         self.user = ''
         self.password = ''
+        self.ssl_secure = True
         if not base_url.endswith('/'):
             base_url += '/'
         self.__url = base_url + 'index.php?/api/v2/'
@@ -65,18 +66,21 @@ class APIClient:
         ).strip()
         headers = {'Authorization': 'Basic ' + auth}
 
+        if not self.ssl_secure:
+            requests.packages.urllib3.disable_warnings()
+
         if method == 'POST':
             if uri[:14] == 'add_attachment':    # add_attachment API method
                 files = {'attachment': (open(data, 'rb'))}
-                response = requests.post(url, headers=headers, files=files)
+                response = requests.post(url, headers=headers, files=files, verify=self.ssl_secure)
                 files['attachment'].close()
             else:
                 headers['Content-Type'] = 'application/json'
                 payload = bytes(json.dumps(data), 'utf-8')
-                response = requests.post(url, headers=headers, data=payload)
+                response = requests.post(url, headers=headers, data=payload, verify=self.ssl_secure)
         else:
             headers['Content-Type'] = 'application/json'
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, headers=headers, verify=self.ssl_secure)
 
         if response.status_code > 201:
             try:
