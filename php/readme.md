@@ -5,7 +5,7 @@ You can learn more about TestRail's API and how to use the PHP binding here:
 
 http://docs.gurock.com/testrail-api2/start
 
-http://docs.gurock.com/testrail-api2/bindings-php
+https://support.testrail.com/hc/en-us/articles/7077133746068-Binding-PHP
 
 
 For questions, suggestions, or other requests, please reach out to us through our support channels:
