@@ -9,7 +9,7 @@
  *
  * Copyright Gurock Software GmbH. See license.md for details.
  */
- 
+
 package com.gurock.testrail;
 
 import java.net.URL;
@@ -91,7 +91,7 @@ public class APIClient
 	 * either be an instance of JSONObject or JSONArray (depending on the
 	 * API method). In most cases, this returns a JSONObject instance which
 	 * is basically the same as java.util.Map.
-	 * 
+	 *
 	 * If 'get_attachment/:attachment_id', returns a String
 	 */
 	public Object sendGet(String uri, String data)
@@ -163,7 +163,7 @@ public class APIClient
 					BufferedWriter bodyWriter = new BufferedWriter(new OutputStreamWriter(ostreamBody));
 					
 					bodyWriter.write("\n\n--" + boundary + "\r\n");
-					bodyWriter.write("Content-Disposition: form-data; name=\"attachment\"; filename=\"" 
+					bodyWriter.write("Content-Disposition: form-data; name=\"attachment\"; filename=\""
 							+ uploadFile.getName() + "\"");
 					bodyWriter.write("\r\n\r\n");
 					bodyWriter.flush();
@@ -218,31 +218,32 @@ public class APIClient
 			if (istream == null)
 			{
 				throw new APIException(
-					"TestRail API return HTTP " + status + 
+					"TestRail API return HTTP " + status +
 					" (No additional error message received)"
 				);
 			}
 		}
-		else 
+		else
 		{
 			istream = conn.getInputStream();
 		}
 		
         // If 'get_attachment' (not 'get_attachments') returned valid status code, save the file
-        if ((istream != null) 
+        if ((istream != null)
 	    && (uri.startsWith("get_attachment/")))
     	{      	
             FileOutputStream outputStream = new FileOutputStream((String)data);
- 
+
             int bytesRead = 0;
             byte[] buffer = new byte[1024];
-            while ((bytesRead = istream.read(buffer)) > 0) 
+            while ((bytesRead = istream.read(buffer)) > 0)
             {
                 outputStream.write(buffer, 0, bytesRead);
             }
- 
+
             outputStream.close();
             istream.close();
+            conn.disconnect();
             return (String) data;
         }
         	
@@ -266,6 +267,7 @@ public class APIClient
 			}
 			
 			reader.close();
+            conn.disconnect();
 		}
 		
 		Object result;
@@ -273,7 +275,7 @@ public class APIClient
 		{
 			result = JSONValue.parse(text);
 		}
-		else 
+		else
 		{
 			result = new JSONObject();
 		}
@@ -304,7 +306,7 @@ public class APIClient
 	
 	private static String getAuthorization(String user, String password)
 	{
-		try 
+		try
 		{
 			return new String(Base64.getEncoder().encode((user + ":" + password).getBytes()));
 		}
