@@ -20,15 +20,19 @@ module TestRail
 		@url = ''
 		@user = ''
 		@password = ''
+		@ssl_secure = true
 
 		attr_accessor :user
 		attr_accessor :password
+		# Set to false to allow self-signed certificates (default: true)
+		attr_accessor :ssl_secure
 
 		def initialize(base_url)
 			if !base_url.match(/\/$/)
 				base_url += '/'
 			end
 			@url = base_url + 'index.php?/api/v2/'
+			@ssl_secure = true
 		end
 
 		#
@@ -99,7 +103,7 @@ module TestRail
 			conn = Net::HTTP.new(url.host, url.port)
 			if url.scheme == 'https'
 				conn.use_ssl = true
-				conn.verify_mode = OpenSSL::SSL::VERIFY_NONE
+				conn.verify_mode = @ssl_secure ? OpenSSL::SSL::VERIFY_PEER : OpenSSL::SSL::VERIFY_NONE
 			end
 			response = conn.request(request)
 

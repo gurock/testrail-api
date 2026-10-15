@@ -1,0 +1,33 @@
+plugins {
+    id 'java-library'
+}
+
+group = 'com.gurock'
+version = '1.0.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    api 'com.googlecode.json-simple:json-simple:1.1.1'
+}
+
+// The sources live next to this file (com/gurock/testrail), not in src/main/java
+sourceSets {
+    main {
+        java {
+            srcDirs = ['.']
+            include 'com/gurock/testrail/**/*.java'
+        }
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}

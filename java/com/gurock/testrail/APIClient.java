@@ -1,6 +1,7 @@
 /**
  * TestRail API binding for Java (API v2, available since TestRail 3.0)
  * Updated for TestRail 5.7
+ * Requires Java 11 or later
  *
  * Learn more:
  *
@@ -12,19 +13,16 @@
  
 package com.gurock.testrail;
 
-import java.net.URL;
-import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.MalformedURLException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Base64;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -35,6 +33,9 @@ public class APIClient
 	private String m_user;
 	private String m_password;
 	private String m_url;
+	private final HttpClient m_client = HttpClient.newBuilder()
+		.followRedirects(HttpClient.Redirect.NORMAL)
+		.build();
 
 	public APIClient(String base_url)
 	{
@@ -135,149 +136,90 @@ public class APIClient
 	private Object sendRequest(String method, String uri, Object data)
 		throws MalformedURLException, IOException, APIException
 	{
-		URL url = new URL(this.m_url + uri);
-		// Create the connection object and set the required HTTP method
-		// (GET/POST) and headers (content type and basic auth).
-		HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-		
-		String auth = getAuthorization(this.m_user, this.m_password);
-		conn.addRequestProperty("Authorization", "Basic " + auth);
-		
+		HttpRequest.Builder builder = HttpRequest.newBuilder()
+			.uri(URI.create(this.m_url + uri))
+			.header("Authorization", "Basic " + getAuthorization(this.m_user, this.m_password));
+
 		if (method.equals("POST"))
 		{
-			conn.setRequestMethod("POST");
 			// Add the POST arguments, if any. We just serialize the passed
 			// data object (i.e. a dictionary) and then add it to the
 			// request body.
-			if (data != null)
-			{				
-				if (uri.startsWith("add_attachment"))   // add_attachment API requests
-				{
-					String boundary = "TestRailAPIAttachmentBoundary"; //Can be any random string
-					File uploadFile = new File((String)data);
-					
-					conn.setDoOutput(true);
-					conn.addRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-					
-					OutputStream ostreamBody = conn.getOutputStream();
-					BufferedWriter bodyWriter = new BufferedWriter(new OutputStreamWriter(ostreamBody));
-					
-					bodyWriter.write("\n\n--" + boundary + "\r\n");
-					bodyWriter.write("Content-Disposition: form-data; name=\"attachment\"; filename=\"" 
-							+ uploadFile.getName() + "\"");
-					bodyWriter.write("\r\n\r\n");
-					bodyWriter.flush();
-					
-					//Read file into request
-					InputStream istreamFile = new FileInputStream(uploadFile);
-					int bytesRead;
-					byte[] dataBuffer = new byte[1024];
-					while ((bytesRead = istreamFile.read(dataBuffer)) != -1)
-					{
-						ostreamBody.write(dataBuffer, 0, bytesRead);
-					}
-					
-					ostreamBody.flush();
-					
-					//end of attachment, add boundary
-					bodyWriter.write("\r\n--" + boundary + "--\r\n");
-					bodyWriter.flush();
+			if (data != null && uri.startsWith("add_attachment"))   // add_attachment API requests
+			{
+				String boundary = "TestRailAPIAttachmentBoundary"; //Can be any random string
+				File uploadFile = new File((String)data);
 
-					//Close streams
-					istreamFile.close();
-					ostreamBody.close();
-					bodyWriter.close();
-				}
-				else	// Not an attachment
-				{
-					conn.addRequestProperty("Content-Type", "application/json");
-					byte[] block = JSONValue.toJSONString(data).
-						getBytes("UTF-8");
-	
-					conn.setDoOutput(true);
-					OutputStream ostream = conn.getOutputStream();
-					ostream.write(block);
-					ostream.close();
-				}
+				ByteArrayOutputStream body = new ByteArrayOutputStream();
+				body.write(("--" + boundary + "\r\n").getBytes("UTF-8"));
+				body.write(("Content-Disposition: form-data; name=\"attachment\"; filename=\""
+					+ uploadFile.getName() + "\"\r\n\r\n").getBytes("UTF-8"));
+				body.write(Files.readAllBytes(uploadFile.toPath()));
+				body.write(("\r\n--" + boundary + "--\r\n").getBytes("UTF-8"));
+
+				builder.header("Content-Type", "multipart/form-data; boundary=" + boundary);
+				builder.POST(HttpRequest.BodyPublishers.ofByteArray(body.toByteArray()));
+			}
+			else if (data != null)	// Not an attachment
+			{
+				builder.header("Content-Type", "application/json");
+				builder.POST(HttpRequest.BodyPublishers.ofByteArray(
+					JSONValue.toJSONString(data).getBytes("UTF-8")));
+			}
+			else
+			{
+				builder.POST(HttpRequest.BodyPublishers.noBody());
 			}
 		}
 		else	// GET request
 		{
-			conn.addRequestProperty("Content-Type", "application/json");
+			builder.header("Content-Type", "application/json");
+			builder.GET();
 		}
-		
-		// Execute the actual web request (if it wasn't already initiated
-		// by getOutputStream above) and record any occurred errors (we use
-		// the error stream in this case).
-		int status = conn.getResponseCode();
-		
-		InputStream istream;
-		if (status != 200)
+
+		// Execute the actual web request and record any occurred errors.
+		HttpResponse<byte[]> response;
+		try
 		{
-			istream = conn.getErrorStream();
-			if (istream == null)
-			{
-				throw new APIException(
-					"TestRail API return HTTP " + status + 
-					" (No additional error message received)"
-				);
-			}
+			response = this.m_client.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
 		}
-		else 
+		catch (InterruptedException e)
 		{
-			istream = conn.getInputStream();
+			Thread.currentThread().interrupt();
+			throw new IOException("Request interrupted", e);
 		}
-		
-        // If 'get_attachment' (not 'get_attachments') returned valid status code, save the file
-        if ((istream != null) 
-	    && (uri.startsWith("get_attachment/")))
-    	{      	
-            FileOutputStream outputStream = new FileOutputStream((String)data);
- 
-            int bytesRead = 0;
-            byte[] buffer = new byte[1024];
-            while ((bytesRead = istream.read(buffer)) > 0) 
-            {
-                outputStream.write(buffer, 0, bytesRead);
-            }
- 
-            outputStream.close();
-            istream.close();
-            return (String) data;
-        }
-        	
-        // Not an attachment received
-		// Read the response body, if any, and deserialize it from JSON.
-		String text = "";
-		if (istream != null)
+
+		int status = response.statusCode();
+		byte[] responseBody = response.body();
+
+		// If 'get_attachment' (not 'get_attachments') returned valid status code, save the file
+		if ((status == 200) && (uri.startsWith("get_attachment/")))
 		{
-			BufferedReader reader = new BufferedReader(
-				new InputStreamReader(
-					istream,
-					"UTF-8"
-				)
+			Files.write(Paths.get((String)data), responseBody);
+			return (String) data;
+		}
+
+		if (status != 200 && responseBody.length == 0)
+		{
+			throw new APIException(
+				"TestRail API return HTTP " + status +
+				" (No additional error message received)"
 			);
-		
-			String line;
-			while ((line = reader.readLine()) != null)
-			{
-				text += line;
-				text += System.getProperty("line.separator");
-			}
-			
-			reader.close();
 		}
-		
+
+		// Read the response body, if any, and deserialize it from JSON.
+		String text = new String(responseBody, "UTF-8");
+
 		Object result;
 		if (!text.equals(""))
 		{
 			result = JSONValue.parse(text);
 		}
-		else 
+		else
 		{
 			result = new JSONObject();
 		}
-		
+
 		// Check for any occurred errors and add additional details to
 		// the exception message, if any (e.g. the error message returned
 		// by TestRail).
@@ -292,16 +234,16 @@ public class APIClient
 					error = '"' + (String) obj.get("error") + '"';
 				}
 			}
-			
+
 			throw new APIException(
 				"TestRail API returned HTTP " + status +
-				"(" + error + ")"
+				" (" + error + ")"
 			);
 		}
-		
+
 		return result;
 	}
-	
+
 	private static String getAuthorization(String user, String password)
 	{
 		try 

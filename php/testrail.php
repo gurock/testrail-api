@@ -15,6 +15,7 @@ class TestRailAPIClient
     private $_user;
     private $_password;
     private $_url;
+    private $_ssl_secure = true;
     public function __construct($base_url)
     {
         $base_url = trim($base_url, '/') . '/';
@@ -45,6 +46,21 @@ class TestRailAPIClient
     public function set_password($password)
     {
         $this->_password = $password;
+    }
+    /**
+     * Get/Set SSL Secure
+     *
+     * Returns/sets whether the TLS certificate and host of the TestRail
+     * server are verified (default: true). Only set this to false if you
+     * need to connect to a server with a self-signed certificate.
+     */
+    public function get_ssl_secure()
+    {
+        return $this->_ssl_secure;
+    }
+    public function set_ssl_secure($ssl_secure)
+    {
+        $this->_ssl_secure = (bool) $ssl_secure;
     }
     /**
      * Send Get
@@ -85,8 +101,8 @@ class TestRailAPIClient
     protected function _create_handle()
     {
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $this->_ssl_secure);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $this->_ssl_secure ? 2 : 0);
         return $ch;
     }
     protected function _send_request($method, $uri, $data)
