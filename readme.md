@@ -6,6 +6,8 @@ You can learn more about TestRail's API here:
 
 http://docs.gurock.com/testrail-api2/start
 
+**Note:** The beta bindings for TestRail 6.7.x have been removed. Please use the standard API v2 bindings instead.
+
 
 For questions, suggestions, or other requests, please reach out to us through our support channels:
 
