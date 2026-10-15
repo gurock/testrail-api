@@ -12,8 +12,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.IO;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -25,6 +26,7 @@ namespace Gurock.TestRail
         private string m_user;
         private string m_password;
         private string m_url;
+        private static readonly HttpClient s_client = new HttpClient();
 
         public APIClient(string base_url)
         {
@@ -100,194 +102,124 @@ namespace Gurock.TestRail
             string url = this.m_url + uri;
 
             // Create the request object and set the required HTTP method
-            // (GET/POST) and headers (content type and basic auth).
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.ContentType = "application/json";
-            request.Method = method;
-
-            string auth = Convert.ToBase64String(
-                Encoding.ASCII.GetBytes(
-                    String.Format(
-                        "{0}:{1}",
-                        this.m_user,
-                        this.m_password
-                    )
-                )
-            );
-
-            request.Headers.Add("Authorization", "Basic " + auth);
-
-            if (method == "POST")
+            // (GET/POST) and headers (basic auth).
+            using (HttpRequestMessage request = new HttpRequestMessage(new HttpMethod(method), url))
             {
-                if (uri.StartsWith("add_attachment"))   // add_attachment API requests
+                string auth = Convert.ToBase64String(
+                    Encoding.ASCII.GetBytes(
+                        String.Format(
+                            "{0}:{1}",
+                            this.m_user,
+                            this.m_password
+                        )
+                    )
+                );
+
+                request.Headers.Authorization = new AuthenticationHeaderValue("Basic", auth);
+
+                if (method == "POST")
                 {
-                    string boundary = String.Format("{0:N}", Guid.NewGuid());
-                    string filePath = (String)data;
-
-                    request.ContentType = "multipart/form-data; boundary=" + boundary;
-
-                    using (MemoryStream postDataStream = new MemoryStream())
-                    using (StreamWriter postDataWriter = new StreamWriter(postDataStream))
+                    if (uri.StartsWith("add_attachment"))   // add_attachment API requests
                     {
-                        postDataWriter.Write("\r\n--" + boundary + "\r\n");
-                        postDataWriter.Write("Content-Disposition: form-data; name=\"attachment\";"
-                                        + "filename=\"{0}\""
-                                        + "\r\nContent-Type: {1}\r\n\r\n",
-                                        Path.GetFileName(filePath),
-                                        Path.GetExtension(filePath));
-                        postDataWriter.Flush();
+                        string filePath = (String)data;
 
-                        using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                        MultipartFormDataContent form = new MultipartFormDataContent();
+                        ByteArrayContent file = new ByteArrayContent(File.ReadAllBytes(filePath));
+                        file.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+                        form.Add(file, "attachment", Path.GetFileName(filePath));
+                        request.Content = form;
+                    }
+                    // For non-attachment requests, add the POST arguments, if any.
+                    // We just serialize the passed data object (i.e. a dictionary)
+                    // and then add it to the request body.
+                    else if (data != null)
+                    {
+                        request.Content = new StringContent(
+                            JsonConvert.SerializeObject(data),
+                            Encoding.UTF8,
+                            "application/json"
+                        );
+                    }
+                }
+
+                // Execute the actual web request (GET or POST).
+                using (HttpResponseMessage response = s_client.SendAsync(request).GetAwaiter().GetResult())
+                {
+                    int statusCode = (int)response.StatusCode;
+
+                    // If 'get_attachment' (but not 'get_attachments') returned valid status code, save the file
+                    if ((statusCode == 200) && (uri.StartsWith("get_attachment/")))
+                    {
+                        try
                         {
-                            byte[] buffer = new byte[1024];
-                            int bytesRead;
-                            while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
+                            File.WriteAllBytes(
+                                (String)data,
+                                response.Content.ReadAsByteArrayAsync().GetAwaiter().GetResult()
+                            );
+                            return (String)data;
+                        }
+                        catch (Exception)
+                        {
+                            throw new APIException("Unable to save attachment.");
+                        }
+                    }
+
+                    // Read the response body, if any, and deserialize it from JSON.
+                    string text = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+
+                    JContainer result;
+                    if (text != "")
+                    {
+                        if (text.StartsWith("["))
+                        {
+                            result = JArray.Parse(text);
+                        }
+                        else
+                        {
+                            try
                             {
-                                postDataStream.Write(buffer, 0, bytesRead);
+                                result = JObject.Parse(text);
                             }
-
-                            postDataWriter.Write("\r\n--" + boundary + "--\r\n");
-                            postDataWriter.Flush();
-
-
-                            request.ContentLength = postDataStream.Length;
-
-                            using (Stream requestStream = request.GetRequestStream())
+                            catch   // Response is not in JSON format
                             {
-                                postDataStream.WriteTo(requestStream);
+                                throw new APIException(String.Format(
+                                    "TestRail API returned the following: {0}\n",
+                                    text));
                             }
                         }
                     }
-                }
-                // For non-attachment requests, add the POST arguments, if any. 
-                // We just serialize the passed data object (i.e. a dictionary)
-                // and then add it to the request body.
-                else if (data != null)
-                {
-                    byte[] block = Encoding.UTF8.GetBytes(
-                        JsonConvert.SerializeObject(data)
-                    );
-                    request.GetRequestStream().Write(block, 0, block.Length);
-                }
-            }
-
-            // Execute the actual web request (GET or POST) and record any
-            // occurred errors.
-            Exception ex = null;
-            HttpWebResponse response = null;
-            try
-            {
-                response = (HttpWebResponse)request.GetResponse();
-            }
-            catch (WebException e)
-            {
-                if (e.Response == null)
-                {
-                    throw;
-                }
-
-                response = (HttpWebResponse)e.Response;
-                ex = e;
-            }
-
-            // If 'get_attachment' (but not 'get_attachments') returned valid status code, save the file
-            if ((response != null) 
-                && ((int)response.StatusCode == 200) 
-                && (uri.StartsWith("get_attachment/")))
-            {
-                byte[] buffer = new byte[1024];
-
-                try
-                {
-                    Stream receiveStream = response.GetResponseStream();
-                    Stream fileStream = File.Create((String)data);
-                    long bytesReceived = 0;
-                    int bytesRead;
-
-                    while ((bytesRead = receiveStream.Read(buffer, 0, buffer.Length)) > 0)
-                    { 
-                        fileStream.Write(buffer, 0, bytesRead);
-                        bytesReceived += bytesRead;
-                    }
-                    fileStream.Flush();
-                    receiveStream.Close();
-                    fileStream.Close();
-                    response.Close();
-
-                    return (String) data;
-                }
-                catch (Exception)
-                {
-                    throw new APIException("Unable to save attachment.");
-                }
-            }
-
-            // Read the response body, if any, and deserialize it from JSON.
-            string text = "";
-            if (response != null)
-            {
-                var reader = new StreamReader(
-                    response.GetResponseStream(),
-                    Encoding.UTF8
-                );
-
-                using (reader)
-                {
-                    text = reader.ReadToEnd();
-                }
-            }
-
-            JContainer result;
-            if (text != "")
-            {
-                if (text.StartsWith("["))
-                {
-                    result = JArray.Parse(text);
-                }
-                else
-                {
-                    try
+                    else
                     {
-                        result = JObject.Parse(text);
+                        result = new JObject();
                     }
-                    catch   // Response is not in JSON format
+
+                    // Check for any occurred errors and add additional details to
+                    // the exception message, if any (e.g. the error message returned
+                    // by TestRail).
+                    if (!response.IsSuccessStatusCode)
                     {
-                        throw new APIException(String.Format(
-                            "TestRail API returned the following: {0}\n",
-                            text));
+                        string error = (result as JObject) != null ? (string)result["error"] : null;
+                        if (error != null)
+                        {
+                            error = '"' + error + '"';
+                        }
+                        else
+                        {
+                            error = "No additional error message received";
+                        }
+
+                        throw new APIException(
+                            String.Format(
+                                "TestRail API returned HTTP {0} ({1})",
+                                statusCode,
+                                error
+                            )
+                        );
                     }
+
+                    return result;
                 }
             }
-            else
-            {
-                result = new JObject();
-            }
-
-            // Check for any occurred errors and add additional details to
-            // the exception message, if any (e.g. the error message returned
-            // by TestRail).
-            if (ex != null)
-            {
-                string error = (string)result["error"];
-                if (error != null)
-                {
-                    error = '"' + error + '"';
-                }
-                else
-                {
-                    error = "No additional error message received";
-                }
-
-                throw new APIException(
-                    String.Format(
-                        "TestRail API returned HTTP {0} ({1})",
-                        (int)response.StatusCode,
-                        error
-                    )
-                );
-            }
-
-            return result;
         }
     }
 }
