@@ -1,20 +1,9 @@
-TestRail API 
-------------
+# testrail-api
 
-This repository contains several example bindings on how to access TestRail's API (v2).
-You can learn more about TestRail's API here:
+> **This repository has moved to a new public location.**
 
-http://docs.gurock.com/testrail-api2/start
+The source code for this project is now maintained at:
 
-**Note:** The beta bindings for TestRail 6.7.x have been removed. Please use the standard API v2 bindings instead.
+## [https://github.com/sembi-oss/testrail-api](https://github.com/sembi-oss/testrail-api)
 
-
-For questions, suggestions, or other requests, please reach out to us through our support channels:
-
-https://www.gurock.com/testrail/support
-
--- 
-
-Copyright Gurock Software GmbH. See license.md for details.
-
-http://www.gurock.com/
+Please update your bookmarks, forks, and any references to point to the new address.
